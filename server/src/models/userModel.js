@@ -20,6 +20,9 @@ const UserSchema = new mongoose.Schema({
     updatedAt:{
         type: Date, 
         default: Date.now(),
+    },
+    notification_references:{
+        type:String,
     }
 },{
     timestamps: true,
