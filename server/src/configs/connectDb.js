@@ -2,7 +2,7 @@ const {mongoose} = require('mongoose')
 
 require('dotenv').config();
 
-const dbURL = `mongodb+srv://${process.env.DATABASE_USERNAME}:${process.env.DATABASE_PASSWORD}@cluster0.ohlks.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
+const dbURL = `mongodb+srv://${process.env.DATABASE_USERNAME}:${process.env.DATABASE_PASSWORD}@cluster0.ohlks.mongodb.net/air-monitoring?retryWrites=true&w=majority&appName=Cluster0`
 
 
 
