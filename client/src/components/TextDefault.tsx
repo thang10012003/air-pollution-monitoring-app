@@ -11,9 +11,11 @@ interface Props extends RNTextProps {
   bold?: boolean;
   center?: boolean;
   numberOfLine?: number;
+  color?: string,
+  size?: number ,
 }
 
-const TextDefault: FC<Props> = ({ children, style, bold, center, ...rest }) => {
+const TextDefault: FC<Props> = ({ children, style, bold, center, color, size, ...rest }) => {
   return (
     <Text
       numberOfLines={rest.numberOfLines}
@@ -21,6 +23,8 @@ const TextDefault: FC<Props> = ({ children, style, bold, center, ...rest }) => {
         // styleGlobal.text,
         style,
         bold && styleText.bold,
+        color && {color: color},
+        size ? {fontSize: size} : undefined,
         // center && styleText.center,
       ]}
       {...rest}

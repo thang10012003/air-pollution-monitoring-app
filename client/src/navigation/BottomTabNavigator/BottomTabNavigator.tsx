@@ -1,13 +1,11 @@
-import {} from 'react-native'
+import { AntDesign, Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BOTTOM_TAB_ROUTE } from "./route";
-import Colors from '../constants/Colors'
-import { AntDesign, Entypo, FontAwesome, Fontisto, Feather, Ionicons } from "@expo/vector-icons";
-import { StyleSheet } from 'react-native';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { } from 'react-native';
+import Colors from '../../constants/Colors';
 import DashboardNavigator from './DashboardNavigator';
-import MapNavigator from './MapNavigator';
 import HistoryNavigator from './HistoryNavigator';
+import MapNavigator from './MapNavigator';
+import { BOTTOM_TAB_ROUTE } from "./route";
 import SettingNavigator from './SettingNavigator';
 
 const { Navigator, Screen } = createBottomTabNavigator();

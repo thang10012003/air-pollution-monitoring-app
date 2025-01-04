@@ -1,9 +1,9 @@
 import { View, Text } from 'react-native'
 import React from 'react'
-import { History } from '../screens';
+import { Map } from '../../screens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-const HistoryNavigator = () => {
+const MapNavigator = () => {
   const Stack = createNativeStackNavigator();
   return (
     <Stack.Navigator
@@ -12,11 +12,11 @@ const HistoryNavigator = () => {
       }}
     >
       <Stack.Screen
-        name='HistoryScreen'
-        component={History}
+        name='MapScreen'
+        component={Map}
       />
     </Stack.Navigator>
   )
 }
 
-export default HistoryNavigator
+export default MapNavigator
