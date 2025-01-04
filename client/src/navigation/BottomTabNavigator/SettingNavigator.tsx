@@ -1,9 +1,9 @@
 import { View, Text } from 'react-native'
 import React from 'react'
-import { Map } from '../screens';
+import { Setting } from '../../screens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-const MapNavigator = () => {
+const SettingNavigator = () => {
   const Stack = createNativeStackNavigator();
   return (
     <Stack.Navigator
@@ -12,11 +12,11 @@ const MapNavigator = () => {
       }}
     >
       <Stack.Screen
-        name='MapScreen'
-        component={Map}
+        name='SettingScreen'
+        component={Setting}
       />
     </Stack.Navigator>
   )
 }
 
-export default MapNavigator
+export default SettingNavigator

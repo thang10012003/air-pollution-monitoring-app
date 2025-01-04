@@ -1,70 +1,82 @@
-import { useState } from "react";
-import { SafeAreaView, TouchableOpacity, StyleSheet, Text, View, ImageBackground,Image } from "react-native";
-import Colors from "../../../constants/Colors"
-
+import { AntDesign } from '@expo/vector-icons/';
+import React, { useState } from "react";
+import { Image, ImageBackground, SafeAreaView, StyleSheet, Switch, TouchableOpacity, View } from "react-native";
+import { InputComponent, SpaceComponent } from "../../../components";
+import Row from "../../../components/Row";
+import TextDefault from "../../../components/TextDefault";
+import Colors from "../../../constants/Colors";
 
 export default function LoginScreen(){
-    // const [isRemember, setIsRemember] = useState(false);
-    // const [userInput, setUserInput] = useState<LoginBody>({
-    //   username: "",
-    //   password: "",
-    // });
-    // const { onLogin, isLoading } = useLogin();
-    // const handleSubmit = async (body: LoginBody) => {
-    //   await onLogin(body).then(async (res) => {
-    //     if (!res) return;
-    //     Toast.show({
-    //       type: "success",
-    //       text1: "Login successfully!",
-    //     });
-    //     if (isRemember) {
-    //       await Helper.saveUserLoginData(userInput);
-    //     }
-    //   });
-    // };
-    // const handleLogin = async () => {
-    //   const missingField = Helper.verifyField(userInput, [EKeyCheck.STRING]);
-  
-    //   if (missingField.length > 0) {
-    //     return Toast.show({
-    //       type: "error",
-    //       text1: "Filed required!",
-    //       text2: missingField.join(", "),
-    //     });
-    //   }
-    //   await handleSubmit(userInput);
-    // };
-  
-    // const handleChangeInput = (key: string, value: string) => {
-    //   setUserInput({
-    //     ...userInput,
-    //     [key]: value,
-    //   });
-    // };
-  
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [isRemember, setIsRemember] = useState(true);
     return (
-      <SafeAreaView style={styles.container}>
-      <ImageBackground 
-      source={require('../../../../assets/images/cloud_bg.png')}
-      resizeMode="cover"
-      style = {styles.imageBackground}
-      imageStyle={{opacity:0.7}}
-      >
-          <View style={styles.imageContainer}>
-              <Image source={require('../../../../assets/images/logo.png')} style={styles.image}></Image>
-              <Text style={[styles.text,{fontWeight:'bold',fontSize:32}]}>Chào mừng bạn{'\n'}</Text>
-              <Text style={[styles.text,{fontWeight:'normal',fontSize:16}]}>Theo dõi tình trạng không khí ngay hôm nay</Text>
-          </View>
-          <View style={styles.btn}>
-              {/* <ButtonPrimary 
-              title='Đăng nhâp' onPress={()=>{}}
-              />
-              <ButtonSecond title="Đăng ký" onPress={()=>{}}
-              /> */}
-          </View>
-
-      </ImageBackground>
-  </SafeAreaView>
+        <SafeAreaView style={styles.container}>
+            <ImageBackground 
+            source={require('../../../../assets/images/cloud_bg.png')}
+            resizeMode="cover"
+            style = {styles.imageBackground}
+            imageStyle={{opacity:0.7}}
+            >
+                <View style={styles.imageContainer}>
+                    <Image source={require('../../../../assets/images/logo.png')} style={styles.image}></Image>
+                </View>
+                <View style={styles.formContainer}>
+                    <TextDefault bold size={32} color={Colors.light.text}>Chào bạn quay trở lại </TextDefault>
+                    <InputComponent 
+                        value={email} 
+                        placeholder="Nhập email" 
+                        onChange={val => setEmail(val)}
+                        allowClear
+                        nameInput="Email"
+                        affix={<AntDesign name="user" size={20} color={Colors.light.greyBlack}/>}
+                    />
+                    <InputComponent
+                        value={password} 
+                        placeholder="Nhập password" 
+                        onChange={val => setPassword(val)}
+                        allowClear
+                        isPassword
+                        nameInput="Mật khẩu"
+                        affix={<AntDesign name="lock" size={20} color={Colors.light.greyBlack}/>}
+                    />   
+                    <Row full between>
+                        <Row>
+                            <Switch
+                                trackColor={{true: Colors.light.tabIconSelected}}
+                                thumbColor={Colors.light.backgroundSecond}
+                                value={isRemember}
+                                onChange={() => setIsRemember(!isRemember)}
+                            />
+                            <TextDefault color={Colors.light.text} size={16}>Lưu mật khẩu</TextDefault>
+                        </Row>
+                        <TextDefault bold color={Colors.light.text} size={16}>Quên mật khẩu</TextDefault>
+                    </Row>     
+                    <TouchableOpacity style={styles.button}>
+                        <TextDefault color={Colors.light.textSecond} bold size={20}>Đăng nhập</TextDefault>
+                    </TouchableOpacity>
+                    <Row full between>
+                        <SpaceComponent height={1.5} width={90} backgroundColor={Colors.light.backgroundSecond}/>
+                        <TextDefault color={Colors.light.text}>Hoặc đăng nhập bằng</TextDefault>
+                        <SpaceComponent height={1.5} width={90} backgroundColor={Colors.light.backgroundSecond}/>
+                    </Row>
+                    <Row full evenly>
+                        <TouchableOpacity>
+                            <Image source={require('../../../../assets/images/googleIcon.png') }></Image>
+                        </TouchableOpacity>
+                        <TouchableOpacity>
+                            <Image source={require('../../../../assets/images/facebookIcon.png')} style={{width: 32, height: 32}}></Image>
+                        </TouchableOpacity>
+                    </Row>
+                    <Row>
+                        <TextDefault color={Colors.light.text} size={18}>Chưa có tài khoản?</TextDefault>
+                        <TouchableOpacity>
+                            <TextDefault bold color={Colors.light.text} size={18}>Đăng ký</TextDefault>
+                        </TouchableOpacity>
+                    </Row>
+                </View>
+            </ImageBackground>
+        </SafeAreaView>
     );
 }
 
@@ -75,33 +87,42 @@ const styles = StyleSheet.create({
   imageBackground:{
       flex: 1,
       justifyContent: 'flex-end',
-      // opacity:0.8
-
-      // justifyContent:'center',
-      // alignItems:'center'
   },
   imageContainer: {
       flex:1,
       justifyContent: 'center',
       alignItems: 'center',
-      flexDirection:'column',
+    //   flexDirection:'column',
       // opacity: 0.5,
   },
   image:{
-      height: 200,
-      width: 200,
-      bottom:170,
+      height: 150,
+      width: 150,
+      marginTop: 30,
       // marginBottom:200,
-  },
-  btn: {
-      // flex:1,
-      width:'100%',
-      minHeight: 65,
-      minWidth: 'auto',
-      flexDirection: "row",
-      // backgroundColor: 'blue',
   },
   text:{
       color:Colors.light.text
+  },
+  formContainer:{
+    flex: 3,
+    backgroundColor: Colors.light.background,
+    borderTopRightRadius: 30,
+    borderTopLeftRadius: 30,
+    // justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'column',
+    rowGap: 40,
+    paddingHorizontal: 20,
+
+  },
+  button: {
+    width: "100%",
+    height: 60,
+    // padding: 20,
+    borderRadius: 10,
+    backgroundColor: Colors.light.backgroundSecond,
+    alignItems:'center',
+    justifyContent:'center',
   }
 })

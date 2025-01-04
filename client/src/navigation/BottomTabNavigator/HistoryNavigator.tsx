@@ -1,9 +1,9 @@
 import { View, Text } from 'react-native'
 import React from 'react'
-import { Setting } from '../screens';
+import { History } from '../../screens';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-const SettingNavigator = () => {
+const HistoryNavigator = () => {
   const Stack = createNativeStackNavigator();
   return (
     <Stack.Navigator
@@ -12,11 +12,11 @@ const SettingNavigator = () => {
       }}
     >
       <Stack.Screen
-        name='SettingScreen'
-        component={Setting}
+        name='HistoryScreen'
+        component={History}
       />
     </Stack.Navigator>
   )
 }
 
-export default SettingNavigator
+export default HistoryNavigator
