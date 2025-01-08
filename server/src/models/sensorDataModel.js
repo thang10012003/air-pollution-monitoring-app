@@ -2,17 +2,18 @@ const { default: mongoose, modelNames } = require("mongoose");
 
 // Định nghĩa các giá trị enum cho trường type
 const sensorDataTypes = [
-    "air-quality", 
+    "AIR_QUALITY", 
     "CO", 
-    "dust-ppm", 
-    "humidity", 
-    "temperature"
+    "DUST_PPM", 
+    "HUMIDITY", 
+    "TEMPERATURE"
 ];
 
 const SensorDataSchema = new mongoose.Schema({
     sensorId: {
         // type: mongoose.Schema.Types.ObjectId,
-        type: String,
+        type: Number,
+        // type: String,
         required: true,
         ref: "SensorModel"
     },
@@ -21,7 +22,7 @@ const SensorDataSchema = new mongoose.Schema({
             type: {
                 type: String,
                 required: true,
-                enum: sensorDataTypes // Sử dụng enum để chỉ định các giá trị hợp lệ
+                enum: sensorDataTypes
             }, 
             value: {
                 type: mongoose.Schema.Types.Decimal128,
