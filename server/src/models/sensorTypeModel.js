@@ -1,16 +1,17 @@
-const { default: mongoose, modelNames } = require("mongoose");
+const mongoose = require("mongoose");
 
 const SensorTypeSchema = new mongoose.Schema({
-    description: {
-        type: Date,
-        default: Date.now(),
-        require: true,
-    },
-    type_name: {
+    typeName: {
         type: String,
-        require: true,
-    }
+        required: true,
+        unique: true
+    },
+    description: {
+        type: String,
+        default: Date.now(),
+    },
 });
+
 const SensorTypeModel = mongoose.model("SensorType", SensorTypeSchema);
 
 module.exports = SensorTypeModel;

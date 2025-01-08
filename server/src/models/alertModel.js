@@ -1,47 +1,32 @@
 const mongoose = require("mongoose");
 
 const AlertSchema = new mongoose.Schema({
-    alert_id: {
-        type: Number,
-        required: true,
-        unique: true,
-    },
-    location_id: {
+    locationId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Location",
         required: true,
     },
-    sensor_id: {
+    sensorId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Sensor",
         required: true,
     },
-    threshold_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Threshold",
-        required: true,
-    },
-    alert_type: {
+    warningScale: {
         type: String,
-        enum: ["normal", "warning", "info"], 
+        enum: ["low", "medium", "high", "critical"], // Enum tùy chỉnh
         required: true,
     },
-    alert_time: {
+    alertTime: {
         type: Date,
-        default: Date.now,
+        required: true,
     },
     message: {
         type: String,
-        required: true,
     },
-    user_id: {
+    userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true,
     },
-}, {
-    timestamps: true, 
 });
 
-const AlertModel = mongoose.model("Alert", AlertSchema);
-module.exports = AlertModel;
+module.exports = mongoose.model("Alert", AlertSchema);

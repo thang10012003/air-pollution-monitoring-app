@@ -1,23 +1,19 @@
 const mongoose = require("mongoose");
 
 const SensorSchema = new mongoose.Schema({
-    sensor_id: {
+    sensorId: {
         type: Number,
         required: true,
         unique: true,
     },
-    location_id: {
+    locationId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Location",
         required: true,
     },
-    sensor_type_id: {
+    sensorTypeId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "SensorType",
-        required: true,
-    },
-    installation_date: {
-        type: Date,
         required: true,
     },
     status: {
