@@ -5,11 +5,30 @@ import { InputComponent, SpaceComponent } from "../../../components";
 import Row from "../../../components/Row";
 import TextDefault from "../../../components/TextDefault";
 import Colors from "../../../constants/Colors";
+import { TopologyClosedEvent } from 'mongodb';
+import authenticationAPI from '../../../apis/authAPI';
+import { useNavigation } from '@react-navigation/native';
+import { LoadingModal } from '../../../modals';
 
 export default function LoginScreen(){
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isRemember, setIsRemember] = useState(true);
+    const [isloading, setIsloading] = useState(false);
+    const navigation = useNavigation();
+    const handleLogin = async() => {
+        setIsloading(true)
+        try {
+            const res = await authenticationAPI.HandleAuthentication(`/hello`);
+            // setTimeout(() => {
+            //     setIsloading(false);
+            // }, 3000);
+            setIsloading(false);
+            console.log(res)
+        } catch (error) {
+            console.log(error)
+        }
+    }
     return (
         <SafeAreaView style={styles.container}>
             <ImageBackground 
@@ -18,6 +37,7 @@ export default function LoginScreen(){
             style = {styles.imageBackground}
             imageStyle={{opacity:0.7}}
             >
+                <LoadingModal visible={isloading}/>
                 <View style={styles.imageContainer}>
                     <Image source={require('../../../../assets/images/logo.png')} style={styles.image}></Image>
                 </View>
@@ -48,11 +68,20 @@ export default function LoginScreen(){
                                 value={isRemember}
                                 onChange={() => setIsRemember(!isRemember)}
                             />
-                            <TextDefault color={Colors.light.text} size={16}>Lưu mật khẩu</TextDefault>
+                            <TouchableOpacity
+                                onPress={() => setIsRemember(!isRemember)}
+                            >
+                                <TextDefault color={Colors.light.text} size={16}>Lưu mật khẩu</TextDefault>
+                            </TouchableOpacity>
                         </Row>
-                        <TextDefault bold color={Colors.light.text} size={16}>Quên mật khẩu</TextDefault>
+                        <TouchableOpacity>
+                            <TextDefault bold color={Colors.light.text} size={16}>Quên mật khẩu</TextDefault>
+                        </TouchableOpacity>
                     </Row>     
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity 
+                    style={styles.button}
+                    onPress={(handleLogin)}
+                    >
                         <TextDefault color={Colors.light.textSecond} bold size={20}>Đăng nhập</TextDefault>
                     </TouchableOpacity>
                     <Row full between>
@@ -70,7 +99,9 @@ export default function LoginScreen(){
                     </Row>
                     <Row>
                         <TextDefault color={Colors.light.text} size={18}>Chưa có tài khoản?</TextDefault>
-                        <TouchableOpacity>
+                        <TouchableOpacity
+                        onPress={() => navigation.navigate('RegistryScreen')}
+                        >
                             <TextDefault bold color={Colors.light.text} size={18}>Đăng ký</TextDefault>
                         </TouchableOpacity>
                     </Row>

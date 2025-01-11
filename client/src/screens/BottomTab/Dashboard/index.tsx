@@ -1,16 +1,14 @@
-import { StatusBar } from "expo-status-bar";
-import { Image, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Colors from "../../../constants/Colors";
 import { AntDesign, FontAwesome, Foundation } from "@expo/vector-icons";
 import { LinearGradient } from 'expo-linear-gradient';
+import { StatusBar } from "expo-status-bar";
+import { useState } from "react";
+import { Image, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Avatar from "../../../components/Avatar";
 import CircleComponent from '../../../components/CircleComponent';
 import Row from "../../../components/Row";
 import TextDefault from "../../../components/TextDefault";
-import axiosClient from "../../../apis/axiosClient";
-import { useEffect, useState } from "react";
-import { appInfo } from "../../../constants/appInfo";
+import Colors from "../../../constants/Colors";
 
 function  Dashboard (){
     const [temperature, setTemperature] = useState<number | null>(null);
@@ -19,21 +17,21 @@ function  Dashboard (){
     const [error, setError] = useState<string | null>(null);
     const [sensorData, setSensorData] = useState([])
 
-    const fetchSensorData = async () => {
-        try {
-          const response = await axiosClient.get(appInfo.BASE_URL+'/api/report'); // Thay bằng URL thực tế
-          setSensorData(response.data);
-        } catch (err) {
-          setError('Error fetching sensor data');
-        } finally {
-          setLoading(false);
-        }
-      };
+    // const fetchSensorData = async () => {
+    //     try {
+    //       const response = await axiosClient.get(appInfo.BASE_URL+'/api/report'); // Thay bằng URL thực tế
+    //       setSensorData(response.data);
+    //     } catch (err) {
+    //       setError('Error fetching sensor data');
+    //     } finally {
+    //       setLoading(false);
+    //     }
+    //   };
     
-      // Gọi API khi component được mount
-      useEffect(() => {
-        fetchSensorData();
-      }, []);
+    //   // Gọi API khi component được mount
+    //   useEffect(() => {
+    //     fetchSensorData();
+    //   }, []);
     return(
         <View style = {styles.container}>
             <StatusBar style="dark" backgroundColor="#A2EEE9"/>

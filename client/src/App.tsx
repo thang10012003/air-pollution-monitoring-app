@@ -25,13 +25,15 @@ export default function App() {
   }, []);
 
   return (
-    // isShowSplash ? <SplashScreen/> : (
-    //   <NavigationContainer>
-    //     <AuthNavigator/>
+    isShowSplash ? <SplashScreen/> : (
+      // <AuthNavigator/>
+      <Navigator/>
+    )
+  //   <NavigationContainer>
+  //   <AuthNavigator/>
 
-    //   </NavigationContainer>
-    // )
-    <Navigator/>
+  // </NavigationContainer>
+    // <Navigator/>
     // <LoginScreen/>
     // <Intro></Intro>
     // <View>

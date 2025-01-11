@@ -20,7 +20,7 @@ app.use(apiRoutes);
   })();
 
 
-app.get('/hello', (_req, res) =>{
+app.get('/auth/hello', (_req, res) =>{
     res.send(`<h1>Hello</h1>`);
 });
 
