@@ -5,12 +5,52 @@ import { InputComponent, SpaceComponent } from "../../../components";
 import Row from "../../../components/Row";
 import TextDefault from "../../../components/TextDefault";
 import Colors from "../../../constants/Colors";
+import { useNavigation } from '@react-navigation/native';
+import LoginScreen from '../Login';
+import { LoadingModal } from '../../../modals';
+import authenticationAPI from '../../../apis/authAPI';
 
+const initValue = {
+    email: '',
+    password: '',
+    confirmPassword: '',
+  };
+  
 export default function RegistryScreen(){
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [values, setValues] = useState(initValue);
     const [isRemember, setIsRemember] = useState(true);
+    const [isloading, setIsloading] = useState(false)
+    const navigation = useNavigation();
+
+    const handelRegistry = async() => {
+        // setIsloading(true);
+        const api = '/register';
+        try {
+            const res = await authenticationAPI.HandleAuthentication(
+                api,
+                // {email: values.email},
+                values,
+                'post',
+            );
+            console.log(res.data)
+            setIsloading(false)
+        } catch (error) {
+            console.log(error);
+            setIsloading(false);
+        }
+    }
+
+    const handleChangeValue = (key: string, value: string) => {
+        const data: any = {...values};
+    
+        data[`${key}`] = value;
+    
+        setValues(data);
+      };
+    
     return (
         <SafeAreaView style={styles.container}>
             <ImageBackground 
@@ -19,38 +59,44 @@ export default function RegistryScreen(){
             style = {styles.imageBackground}
             imageStyle={{opacity:0.7}}
             >
+                <LoadingModal visible={isloading}>
+
+                </LoadingModal>
                 <View style={styles.imageContainer}>
                     <Image source={require('../../../../assets/images/logo.png')} style={styles.image}></Image>
                 </View>
                 <View style={styles.formContainer}>
                     <TextDefault bold size={32} color={Colors.light.text}>Bắt đầu nào</TextDefault>
                     <InputComponent 
-                        value={email} 
+                        value={values.email} 
                         placeholder="Nhập email" 
-                        onChange={val => setEmail(val)}
+                        onChange={val => handleChangeValue('email',val)}
                         allowClear
                         nameInput="Email"
                         affix={<AntDesign name="user" size={20} color={Colors.light.greyBlack}/>}
                     />
                     <InputComponent
-                        value={password} 
+                        value={values.password} 
                         placeholder="Nhập mật khẩu" 
-                        onChange={val => setPassword(val)}
+                        onChange={val => handleChangeValue("password", val)}
                         allowClear
                         isPassword
                         nameInput="Mật khẩu"
                         affix={<AntDesign name="lock" size={20} color={Colors.light.greyBlack}/>}
                     />   
                     <InputComponent
-                        value={confirmPassword} 
+                        value={values.confirmPassword} 
                         placeholder="Xác nhận mật khẩu" 
-                        onChange={val => setConfirmPassword(val)}
+                        onChange={val => handleChangeValue("confirmPassword", val)}
                         allowClear
                         isPassword
                         nameInput="Xác nhận mật khẩu"
                         affix={<AntDesign name="lock" size={20} color={Colors.light.greyBlack}/>}
                     />     
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity 
+                    style={styles.button}
+                    onPress={handelRegistry}
+                    >
                         <TextDefault color={Colors.light.textSecond} bold size={20}>Đăng ký</TextDefault>
                     </TouchableOpacity>
                     <Row full between>
@@ -68,7 +114,9 @@ export default function RegistryScreen(){
                     </Row>
                     <Row>
                         <TextDefault color={Colors.light.text} size={18}>Đã có tài khoản?</TextDefault>
-                        <TouchableOpacity>
+                        <TouchableOpacity
+                        onPress={() => navigation.navigate('LoginScreen')}
+                        >
                             <TextDefault bold color={Colors.light.text} size={18}>Đăng nhập</TextDefault>
                         </TouchableOpacity>
                     </Row>
