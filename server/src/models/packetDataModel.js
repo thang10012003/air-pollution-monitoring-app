@@ -1,23 +1,23 @@
 const mongoose = require("mongoose");
 
 const PacketDataSchema = new mongoose.Schema({
+    location : {
+        required : true,
+        type: mongoose.Schema.Types.ObjectId,
+    },
     dataset: [
         {
-        sensorId: {
-            type: Number,
-            ref: "Sensor", 
-            required: true,
-        },
         timestamp: {
             type: Date,
-            required: true,
+            // required: true,
+            default : Date.now(),
         },
         dataType: {
             type: String,
             required: true,
         },
         dataValue: {
-            type: mongoose.Schema.Types.Decimal128,
+            type: String,
             required: true,
         },
         },

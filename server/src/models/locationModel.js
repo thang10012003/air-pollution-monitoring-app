@@ -9,7 +9,7 @@ const LocationSchema = new mongoose.Schema({
         require: true,
         type: mongoose.Schema.Types.Decimal128,
     },
-    longtitude:{
+    longitude:{
         require: true,
         type: mongoose.Schema.Types.Decimal128,
     }

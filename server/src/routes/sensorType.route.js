@@ -1,10 +1,12 @@
 const express = require('express');
-const { getAllType, createType, deleteType } = require('../controllers/sensorType.controller');
+const { getAllType, createType, deleteType, getSensorTypeById } = require('../controllers/sensorType.controller');
 
 const router = express.Router();
 
 // Lấy tất cả sensor types
 router.get('/', getAllType);
+router.get('/:id', getSensorTypeById);
+
 
 // Tạo mới sensor type
 router.post('/', createType);

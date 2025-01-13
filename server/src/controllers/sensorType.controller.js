@@ -9,6 +9,25 @@ const getAllType =  async (req, res) =>{
     }
 };
 //post type
+const getSensorTypeById = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({ message: "Sensor Type ID is required" });
+        }
+
+        const sensorType = await sensorTypeService.getSensorTypeById(id);
+
+        if (!sensorType) {
+            return res.status(404).json({ message: "Sensor Type not found" });
+        }
+
+        res.status(200).json(sensorType);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 const createType = async (req, res) => {
     try {
         const { typeName, description } = req.body;
@@ -43,4 +62,4 @@ const deleteType = async (req, res) => {
     }
 };
 
-module.exports = { getAllType, createType, deleteType };
+module.exports = { getAllType, createType, deleteType, getSensorTypeById };
