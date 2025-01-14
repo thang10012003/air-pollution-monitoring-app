@@ -9,6 +9,14 @@ const getAllType =  async () =>{
         throw new Error(error.message);
     }
 };
+const getSensorTypeById = async (id) => {
+    try {
+        return await SensorType.findById(id);
+    } catch (error) {
+        throw new Error("Error fetching SensorType by ID");
+    }
+};
+
 const createSensorType = async (typeName, description) => {
     try {
         const newType = new SensorType({
@@ -33,5 +41,5 @@ const deleteSensorTypeById = async (id) => {
     }
 };
 
-module.exports = { getAllType, createSensorType, deleteSensorTypeById };
+module.exports = { getAllType, createSensorType, deleteSensorTypeById, getSensorTypeById };
 

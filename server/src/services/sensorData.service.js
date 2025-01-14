@@ -26,5 +26,11 @@ const createData =  async (sensorId, values) =>{
     }
 };
 
-
-module.exports = {getAllData, createData}
+const getDataFromLocaltion = async (location) =>{
+    try{
+        
+    }catch(error){
+        throw new Error(error.message);
+    }
+}
+module.exports = {getAllData, createData, getDataFromLocaltion}

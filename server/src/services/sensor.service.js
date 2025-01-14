@@ -6,7 +6,15 @@ const getAllSensor=  async () =>{
     } catch (error) {
         throw new Error(error.message);
     }
-};const createSensor = async (sensorId, locationId, sensorTypeId, status = "active") => {
+};
+const getSensorByLocationAndType = async (locationId, sensorTypeId) => {
+    return await SensorModel.findOne({ locationId, sensorTypeId });
+};
+
+const getAllSensorsFromLocation = async (locationId) => {
+    return await SensorModel.find({locationId});
+};
+const createSensor = async (sensorId, locationId, sensorTypeId, status = "active") => {
     try {
         const newSensor = new SensorModel({
             sensorId,
@@ -21,4 +29,4 @@ const getAllSensor=  async () =>{
     }
 };
 
-module.exports = { createSensor , getAllSensor};
+module.exports = { createSensor , getAllSensor, getSensorByLocationAndType, getAllSensorsFromLocation};
