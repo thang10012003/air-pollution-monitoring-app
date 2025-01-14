@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./configs/connectDb');
 const app = express();
-
+const errorMiddleware = require('./middlewares/errorMiddleware')
 
 app.use(cors());
 app.use(express.json());
@@ -19,10 +19,7 @@ app.use(apiRoutes);
     }
   })();
 
-
-app.get('/hello', (_req, res) =>{
-    res.send(`<h1>Hello</h1>`);
-});
+app.use(errorMiddleware);
 
 app.listen(PORT, (err) => {
     if(err){

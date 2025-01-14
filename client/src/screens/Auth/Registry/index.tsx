@@ -1,16 +1,90 @@
 import { AntDesign } from '@expo/vector-icons/';
-import React, { useState } from "react";
-import { Image, ImageBackground, SafeAreaView, StyleSheet, Switch, TouchableOpacity, View } from "react-native";
+import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from "react";
+import { Image, ImageBackground, SafeAreaView, StyleSheet, TouchableOpacity, View } from "react-native";
+import authenticationAPI from '../../../apis/authAPI';
 import { InputComponent, SpaceComponent } from "../../../components";
 import Row from "../../../components/Row";
 import TextDefault from "../../../components/TextDefault";
 import Colors from "../../../constants/Colors";
-
+import { LoadingModal } from '../../../modals';
+import { Validate } from '../../../utils/validation';
+import { useDispatch } from 'react-redux';
+import { addAuth } from '../../../redux/reducers/authReducer';
+const initValue = {
+    email: '',
+    password: '',
+    confirmPassword: '',
+};
 export default function RegistryScreen(){
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [isRemember, setIsRemember] = useState(true);
+    const [values, setValues] = useState(initValue);
+    const [isloading, setIsloading] = useState(false)
+    const navigation = useNavigation();
+    const [errorMessage, seterrorMessage] = useState('')
+    const dispatch = useDispatch();
+    useEffect(() => {
+        if(values.email || values.password){
+            seterrorMessage('')
+        }
+    },[values.email, values.password])
+      
+    const handelRegistry = async() => {
+        // setIsloading(true);
+        //validate
+        const {email, password, confirmPassword} = values;
+        const validateEmail = Validate.email(email);
+        const validatePassword = Validate.password(password)
+        const validateConfirmPass = Validate.confirmPassword(password, confirmPassword);
+        const name = Validate.extractNameFromEmail(email);
+        if(email && password && confirmPassword){
+            if(validateEmail){
+                if(validatePassword){
+                    seterrorMessage('')
+                    if(validateConfirmPass){
+                        const api = '/register';
+                        try {
+                            const res = await authenticationAPI.HandleAuthentication(
+                                api,
+                                {
+                                    name: name,
+                                    email: values.email,
+                                    password: values.password 
+                                },
+                                'post',
+                            );
+                            // console.log(name);
+                            // console.log(values)
+                            console.log(res.data);
+                            // dispatch(addAuth(res.data))
+                            setIsloading(false)
+                        } catch (error) {
+                            console.log(error);
+                            setIsloading(false);
+                        }
+
+                    }else{
+                        seterrorMessage('Xác nhận mật khẩu không đúng')
+                    }
+                }else{
+                    seterrorMessage('Mật khẩu phải có hơn 6 kí tự')
+                }
+            }else{
+                seterrorMessage('Vui lòng nhập lại email!')
+            }
+
+        }else{
+            seterrorMessage("Vui lòng nhập đầy đủ thông tin");
+        }
+    }
+
+    const handleChangeValue = (key: string, value: string) => {
+        const data: any = {...values};
+    
+        data[`${key}`] = value;
+    
+        setValues(data);
+      };
+    
     return (
         <SafeAreaView style={styles.container}>
             <ImageBackground 
@@ -19,38 +93,47 @@ export default function RegistryScreen(){
             style = {styles.imageBackground}
             imageStyle={{opacity:0.7}}
             >
+                <LoadingModal visible={isloading}>
+
+                </LoadingModal>
                 <View style={styles.imageContainer}>
                     <Image source={require('../../../../assets/images/logo.png')} style={styles.image}></Image>
                 </View>
                 <View style={styles.formContainer}>
                     <TextDefault bold size={32} color={Colors.light.text}>Bắt đầu nào</TextDefault>
                     <InputComponent 
-                        value={email} 
+                        value={values.email} 
                         placeholder="Nhập email" 
-                        onChange={val => setEmail(val)}
+                        onChange={val => handleChangeValue('email',val)}
                         allowClear
                         nameInput="Email"
                         affix={<AntDesign name="user" size={20} color={Colors.light.greyBlack}/>}
                     />
                     <InputComponent
-                        value={password} 
+                        value={values.password} 
                         placeholder="Nhập mật khẩu" 
-                        onChange={val => setPassword(val)}
+                        onChange={val => handleChangeValue("password", val)}
                         allowClear
                         isPassword
                         nameInput="Mật khẩu"
                         affix={<AntDesign name="lock" size={20} color={Colors.light.greyBlack}/>}
                     />   
                     <InputComponent
-                        value={confirmPassword} 
+                        value={values.confirmPassword} 
                         placeholder="Xác nhận mật khẩu" 
-                        onChange={val => setConfirmPassword(val)}
+                        onChange={val => handleChangeValue("confirmPassword", val)}
                         allowClear
                         isPassword
                         nameInput="Xác nhận mật khẩu"
                         affix={<AntDesign name="lock" size={20} color={Colors.light.greyBlack}/>}
                     />     
-                    <TouchableOpacity style={styles.button}>
+                    <Row full start direction='row'>
+                        {errorMessage && <TextDefault size={16} bold color={Colors.light.danger}>{errorMessage}</TextDefault>}
+                    </Row>
+                    <TouchableOpacity 
+                    style={styles.button}
+                    onPress={handelRegistry}
+                    >
                         <TextDefault color={Colors.light.textSecond} bold size={20}>Đăng ký</TextDefault>
                     </TouchableOpacity>
                     <Row full between>
@@ -68,7 +151,9 @@ export default function RegistryScreen(){
                     </Row>
                     <Row>
                         <TextDefault color={Colors.light.text} size={18}>Đã có tài khoản?</TextDefault>
-                        <TouchableOpacity>
+                        <TouchableOpacity
+                        onPress={() => navigation.navigate('LoginScreen')}
+                        >
                             <TextDefault bold color={Colors.light.text} size={18}>Đăng nhập</TextDefault>
                         </TouchableOpacity>
                     </Row>

@@ -6,6 +6,7 @@ export * from './CircleComponent'
 
 import InputComponent from './InputComponent'
 import SpaceComponent from './SpaceComponent'
+import ContainerComponent from './ContainerComponent'
 export{
-    InputComponent, SpaceComponent 
+    InputComponent, SpaceComponent, ContainerComponent
 }

@@ -8,6 +8,8 @@ import SplashScreen from './screens/SplashScreen';
 import AuthNavigator from './navigation/AuthNavigator';
 import { NavigationContainer } from '@react-navigation/native';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
+import { Provider } from 'react-redux';
+import store from './redux/store';
 
 
 
@@ -15,7 +17,6 @@ import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 export default function App() {
   
   const [isShowSplash, setIsShowSplash] = useState(true);
-  const {getItem, setItem} = useAsyncStorage('accessToken');
 
   useEffect(() => {
     const timeOut = setTimeout(() => {
@@ -24,14 +25,20 @@ export default function App() {
     return () => clearTimeout(timeOut);
   }, []);
 
-  return (
-    // isShowSplash ? <SplashScreen/> : (
-    //   <NavigationContainer>
-    //     <AuthNavigator/>
 
-    //   </NavigationContainer>
-    // )
-    <Navigator/>
+  return (
+    <Provider store={store}>
+      {isShowSplash ? <SplashScreen/> : (
+        <AuthNavigator/>
+      )
+      }
+    </Provider>
+      // <Navigator/>  
+  //   <NavigationContainer>
+  //   <AuthNavigator/>
+
+  // </NavigationContainer>
+    // <Navigator/>
     // <LoginScreen/>
     // <Intro></Intro>
     // <View>
