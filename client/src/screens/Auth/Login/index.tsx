@@ -10,11 +10,16 @@ import authenticationAPI from '../../../apis/authAPI';
 import { useNavigation } from '@react-navigation/native';
 import { LoadingModal } from '../../../modals';
 
+const initValue = {
+    email: '',
+    password: '',
+  };
 export default function LoginScreen(){
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isRemember, setIsRemember] = useState(true);
     const [isloading, setIsloading] = useState(false);
+    const [values, setValues] = useState(initValue);
     const navigation = useNavigation();
     const handleLogin = async() => {
         setIsloading(true)
@@ -29,6 +34,13 @@ export default function LoginScreen(){
             console.log(error)
         }
     }
+    const handleChangeValue = (key: string, value: string) => {
+        const data: any = {...values};
+    
+        data[`${key}`] = value;
+    
+        setValues(data);
+      };
     return (
         <SafeAreaView style={styles.container}>
             <ImageBackground 

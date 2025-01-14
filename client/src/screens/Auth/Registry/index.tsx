@@ -1,45 +1,79 @@
 import { AntDesign } from '@expo/vector-icons/';
-import React, { useState } from "react";
-import { Image, ImageBackground, SafeAreaView, StyleSheet, Switch, TouchableOpacity, View } from "react-native";
+import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from "react";
+import { Image, ImageBackground, SafeAreaView, StyleSheet, TouchableOpacity, View } from "react-native";
+import authenticationAPI from '../../../apis/authAPI';
 import { InputComponent, SpaceComponent } from "../../../components";
 import Row from "../../../components/Row";
 import TextDefault from "../../../components/TextDefault";
 import Colors from "../../../constants/Colors";
-import { useNavigation } from '@react-navigation/native';
-import LoginScreen from '../Login';
 import { LoadingModal } from '../../../modals';
-import authenticationAPI from '../../../apis/authAPI';
-
+import { Validate } from '../../../utils/validation';
+import { useDispatch } from 'react-redux';
+import { addAuth } from '../../../redux/reducers/authReducer';
 const initValue = {
     email: '',
     password: '',
     confirmPassword: '',
-  };
-  
+};
 export default function RegistryScreen(){
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
     const [values, setValues] = useState(initValue);
-    const [isRemember, setIsRemember] = useState(true);
     const [isloading, setIsloading] = useState(false)
     const navigation = useNavigation();
-
+    const [errorMessage, seterrorMessage] = useState('')
+    const dispatch = useDispatch();
+    useEffect(() => {
+        if(values.email || values.password){
+            seterrorMessage('')
+        }
+    },[values.email, values.password])
+      
     const handelRegistry = async() => {
         // setIsloading(true);
-        const api = '/register';
-        try {
-            const res = await authenticationAPI.HandleAuthentication(
-                api,
-                // {email: values.email},
-                values,
-                'post',
-            );
-            console.log(res.data)
-            setIsloading(false)
-        } catch (error) {
-            console.log(error);
-            setIsloading(false);
+        //validate
+        const {email, password, confirmPassword} = values;
+        const validateEmail = Validate.email(email);
+        const validatePassword = Validate.password(password)
+        const validateConfirmPass = Validate.confirmPassword(password, confirmPassword);
+        const name = Validate.extractNameFromEmail(email);
+        if(email && password && confirmPassword){
+            if(validateEmail){
+                if(validatePassword){
+                    seterrorMessage('')
+                    if(validateConfirmPass){
+                        const api = '/register';
+                        try {
+                            const res = await authenticationAPI.HandleAuthentication(
+                                api,
+                                {
+                                    name: name,
+                                    email: values.email,
+                                    password: values.password 
+                                },
+                                'post',
+                            );
+                            // console.log(name);
+                            // console.log(values)
+                            console.log(res.data);
+                            // dispatch(addAuth(res.data))
+                            setIsloading(false)
+                        } catch (error) {
+                            console.log(error);
+                            setIsloading(false);
+                        }
+
+                    }else{
+                        seterrorMessage('Xác nhận mật khẩu không đúng')
+                    }
+                }else{
+                    seterrorMessage('Mật khẩu phải có hơn 6 kí tự')
+                }
+            }else{
+                seterrorMessage('Vui lòng nhập lại email!')
+            }
+
+        }else{
+            seterrorMessage("Vui lòng nhập đầy đủ thông tin");
         }
     }
 
@@ -93,6 +127,9 @@ export default function RegistryScreen(){
                         nameInput="Xác nhận mật khẩu"
                         affix={<AntDesign name="lock" size={20} color={Colors.light.greyBlack}/>}
                     />     
+                    <Row full start direction='row'>
+                        {errorMessage && <TextDefault size={16} bold color={Colors.light.danger}>{errorMessage}</TextDefault>}
+                    </Row>
                     <TouchableOpacity 
                     style={styles.button}
                     onPress={handelRegistry}
