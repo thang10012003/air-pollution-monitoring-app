@@ -1,5 +1,5 @@
 import { AntDesign } from '@expo/vector-icons/';
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Image, ImageBackground, SafeAreaView, StyleSheet, Switch, TouchableOpacity, View } from "react-native";
 import { InputComponent, SpaceComponent } from "../../../components";
 import Row from "../../../components/Row";
@@ -9,29 +9,64 @@ import { TopologyClosedEvent } from 'mongodb';
 import authenticationAPI from '../../../apis/authAPI';
 import { useNavigation } from '@react-navigation/native';
 import { LoadingModal } from '../../../modals';
+import { Validate } from '../../../utils/validation';
+import { useDispatch } from 'react-redux';
+import { addAuth } from '../../../redux/reducers/authReducer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const initValue = {
     email: '',
     password: '',
   };
 export default function LoginScreen(){
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [isRemember, setIsRemember] = useState(true);
     const [isloading, setIsloading] = useState(false);
     const [values, setValues] = useState(initValue);
     const navigation = useNavigation();
+    const emailValidation = Validate.email(values.email);
+    const [errorMessage, seterrorMessage] = useState('')
+    const passwordValidation = Validate.password(values.password);
+    const dispatch = useDispatch();
+    useEffect(() => { 
+        const getEmail = async () => {
+            const email = await AsyncStorage.getItem("auth");
+            if(email){
+                handleChangeValue("email", JSON.parse(email))
+                console.log(values.email)
+            }
+        }
+        getEmail()
+    },[])
     const handleLogin = async() => {
-        setIsloading(true)
-        try {
-            const res = await authenticationAPI.HandleAuthentication(`/hello`);
-            // setTimeout(() => {
-            //     setIsloading(false);
-            // }, 3000);
-            setIsloading(false);
-            console.log(res)
-        } catch (error) {
-            console.log(error)
+        if(emailValidation){
+            seterrorMessage('');
+            if(passwordValidation){
+                // setIsloading(true)
+                const api = `/login`;
+                try {
+                    const res = await authenticationAPI.HandleAuthentication(
+                        api,
+                        {
+                            email: values.email,
+                            password: values.password,
+                        },
+                        "post"
+                    );
+                    dispatch(addAuth(res.data))
+
+                    await AsyncStorage.setItem("auth",  
+                        isRemember? JSON.stringify(res.data): res.data.email)
+
+                    setIsloading(false);
+                    console.log(res)
+                } catch (error) {
+                    console.log(error)
+                }
+            }else{
+                seterrorMessage("Mật khẩu ít nhất 6 kí tự!!!")
+            }
+        }else{
+            seterrorMessage("Email không hợp lệ!!!")
         }
     }
     const handleChangeValue = (key: string, value: string) => {
@@ -56,17 +91,17 @@ export default function LoginScreen(){
                 <View style={styles.formContainer}>
                     <TextDefault bold size={32} color={Colors.light.text}>Chào bạn quay trở lại </TextDefault>
                     <InputComponent 
-                        value={email} 
+                        value={values.email} 
                         placeholder="Nhập email" 
-                        onChange={val => setEmail(val)}
+                        onChange={val => handleChangeValue("email",val)}
                         allowClear
                         nameInput="Email"
                         affix={<AntDesign name="user" size={20} color={Colors.light.greyBlack}/>}
                     />
                     <InputComponent
-                        value={password} 
+                        value={values.password} 
                         placeholder="Nhập password" 
-                        onChange={val => setPassword(val)}
+                        onChange={val => handleChangeValue("password",val)}
                         allowClear
                         isPassword
                         nameInput="Mật khẩu"
@@ -90,6 +125,9 @@ export default function LoginScreen(){
                             <TextDefault bold color={Colors.light.text} size={16}>Quên mật khẩu</TextDefault>
                         </TouchableOpacity>
                     </Row>     
+                    <Row full start direction='row'>
+                        {errorMessage && <TextDefault size={16} bold color={Colors.light.danger}>{errorMessage}</TextDefault>}
+                    </Row>
                     <TouchableOpacity 
                     style={styles.button}
                     onPress={(handleLogin)}
@@ -97,9 +135,9 @@ export default function LoginScreen(){
                         <TextDefault color={Colors.light.textSecond} bold size={20}>Đăng nhập</TextDefault>
                     </TouchableOpacity>
                     <Row full between>
-                        <SpaceComponent height={1.5} width={90} backgroundColor={Colors.light.backgroundSecond}/>
+                        <SpaceComponent height={0.5} width={90} backgroundColor={Colors.light.backgroundSecond}/>
                         <TextDefault color={Colors.light.text}>Hoặc đăng nhập bằng</TextDefault>
-                        <SpaceComponent height={1.5} width={90} backgroundColor={Colors.light.backgroundSecond}/>
+                        <SpaceComponent height={0.5} width={90} backgroundColor={Colors.light.backgroundSecond}/>
                     </Row>
                     <Row full evenly>
                         <TouchableOpacity>
@@ -129,7 +167,7 @@ const styles = StyleSheet.create({
   },
   imageBackground:{
       flex: 1,
-      justifyContent: 'flex-end',
+    //   justifyContent: 'flex-end',
   },
   imageContainer: {
       flex:1,
@@ -148,14 +186,14 @@ const styles = StyleSheet.create({
       color:Colors.light.text
   },
   formContainer:{
-    flex: 3,
+    flex: 4,
     backgroundColor: Colors.light.background,
     borderTopRightRadius: 30,
     borderTopLeftRadius: 30,
     // justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'column',
-    rowGap: 40,
+    rowGap: 30,
     paddingHorizontal: 20,
 
   },

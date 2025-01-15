@@ -9,6 +9,8 @@ import CircleComponent from '../../../components/CircleComponent';
 import Row from "../../../components/Row";
 import TextDefault from "../../../components/TextDefault";
 import Colors from "../../../constants/Colors";
+import { useDispatch, useSelector } from "react-redux";
+import { authSelector } from "../../../redux/reducers/authReducer";
 
 function  Dashboard (){
     const [temperature, setTemperature] = useState<number | null>(null);
@@ -16,7 +18,8 @@ function  Dashboard (){
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [sensorData, setSensorData] = useState([])
-
+    const dispatch = useDispatch();
+    const selector = useSelector(authSelector);
     // const fetchSensorData = async () => {
     //     try {
     //       const response = await axiosClient.get(appInfo.BASE_URL+'/api/report'); // Thay bằng URL thực tế
@@ -47,7 +50,7 @@ function  Dashboard (){
                                 <Avatar url='https://vnn-imgs-a1.vgcloud.vn/image1.ictnews.vn/_Files/2020/03/17/trend-avatar-1.jpg'/>
                                 <Row direction="column" style={[{marginLeft:20}]}>
                                     <TextDefault style={styles.text}>Chào buổi sáng</TextDefault>
-                                    <TextDefault bold style={styles.text}>Nguyễn Thắng</TextDefault>
+                                    <TextDefault bold style={styles.text}>{selector.email}</TextDefault>
                                 </Row>
 
                             </Row>

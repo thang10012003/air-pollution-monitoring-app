@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       paddingHorizontal: 15,
       backgroundColor: Colors.light.white,
-      marginBottom: 19,
+      marginBottom: 15,
     },
   
     input: {
