@@ -11,6 +11,7 @@ import { LoadingModal } from '../../../modals';
 import { Validate } from '../../../utils/validation';
 import { useDispatch } from 'react-redux';
 import { addAuth } from '../../../redux/reducers/authReducer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const initValue = {
     email: '',
     password: '',
@@ -54,8 +55,9 @@ export default function RegistryScreen(){
                             );
                             // console.log(name);
                             // console.log(values)
-                            console.log(res.data);
-                            // dispatch(addAuth(res.data))
+                            // console.log(res.data);
+                            dispatch(addAuth(res.data))
+                            await AsyncStorage.setItem("auth", JSON.stringify(res.data));
                             setIsloading(false)
                         } catch (error) {
                             console.log(error);
@@ -93,9 +95,7 @@ export default function RegistryScreen(){
             style = {styles.imageBackground}
             imageStyle={{opacity:0.7}}
             >
-                <LoadingModal visible={isloading}>
-
-                </LoadingModal>
+                <LoadingModal visible={isloading}></LoadingModal>
                 <View style={styles.imageContainer}>
                     <Image source={require('../../../../assets/images/logo.png')} style={styles.image}></Image>
                 </View>
@@ -137,9 +137,9 @@ export default function RegistryScreen(){
                         <TextDefault color={Colors.light.textSecond} bold size={20}>Đăng ký</TextDefault>
                     </TouchableOpacity>
                     <Row full between>
-                        <SpaceComponent height={1.5} width={90} backgroundColor={Colors.light.backgroundSecond}/>
+                        <SpaceComponent height={0.5} width={90} backgroundColor={Colors.light.backgroundSecond}/>
                         <TextDefault color={Colors.light.text}>Hoặc đăng ký bằng</TextDefault>
-                        <SpaceComponent height={1.5} width={90} backgroundColor={Colors.light.backgroundSecond}/>
+                        <SpaceComponent height={0.5} width={90} backgroundColor={Colors.light.backgroundSecond}/>
                     </Row>
                     <Row full evenly>
                         <TouchableOpacity>
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'column',
-    rowGap: 30,
+    rowGap: 20,
     paddingHorizontal: 20,
 
   },

@@ -43,5 +43,17 @@ const findUser = async(email) => {
     const existUser = await UserModel.findOne({email});
     return existUser;
 } 
+const login = async(email, password) => {
+    const existUser = await findUser(email);
+    if(!existUser){
+        return false;
+    }
+    const isMatchedUser = await bcrypt.compare(password, existUser.password)
+    if(isMatchedUser){
+        return {success: true, user: existUser, accessToken: await getJWT(existUser.email, existUser.id)};
+    }
+    return false;
 
-module.exports = {register}
+}
+
+module.exports = {register, login}
