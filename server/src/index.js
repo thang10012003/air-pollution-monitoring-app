@@ -8,6 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
+app.get("/", (req, res) => res.send("Express on Vercel"));
 const apiRoutes = require('./routes/index')
 app.use(apiRoutes);
 
@@ -21,10 +22,11 @@ app.use(apiRoutes);
 
 app.use(errorMiddleware);
 
-app.listen(PORT, (err) => {
-    if(err){
-        console.log(err);
-        return;
-    }
-    console.log(`Server starting at http://localhost:${PORT}`);
-});
+// app.listen(PORT, (err) => {
+//     if(err){
+//         console.log(err);
+//         return;
+//     }
+//     console.log(`Server starting at http://localhost:${PORT}`);
+// });
+module.exports = app
