@@ -22,11 +22,11 @@ app.use(apiRoutes);
 
 app.use(errorMiddleware);
 
-// app.listen(PORT, (err) => {
-//     if(err){
-//         console.log(err);
-//         return;
-//     }
-//     console.log(`Server starting at http://localhost:${PORT}`);
-// });
+app.listen(PORT, (err) => {
+    if(err){
+        console.log(err);
+        return;
+    }
+    console.log(`Server starting at http://localhost:${PORT}`);
+});
 module.exports = app
