@@ -3,7 +3,19 @@ const locationService = require("../services/location.service");
 const getAllLocations = async (req, res) => {
     try {
         const locations = await locationService.getAllLocations();
-        res.status(200).json(locations);
+        const data = [];
+        locations.forEach((location) =>
+            data.push({
+                id: location.id,
+                name: location.name,
+                latitude: location.latitude,
+                longitude: location.longitude,
+            })
+        );
+        res.status(200).json({
+            message: "Get locations successfully",
+            data
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -30,7 +30,7 @@ export default function RegistryScreen(){
     },[values.email, values.password])
       
     const handelRegistry = async() => {
-        // setIsloading(true);
+        setIsloading(true);
         //validate
         const {email, password, confirmPassword} = values;
         const validateEmail = Validate.email(email);
@@ -66,16 +66,20 @@ export default function RegistryScreen(){
 
                     }else{
                         seterrorMessage('Xác nhận mật khẩu không đúng')
+                        setIsloading(false);
                     }
                 }else{
                     seterrorMessage('Mật khẩu phải có hơn 6 kí tự')
+                    setIsloading(false)
                 }
             }else{
                 seterrorMessage('Vui lòng nhập lại email!')
+                setIsloading(false)
             }
 
         }else{
             seterrorMessage("Vui lòng nhập đầy đủ thông tin");
+            setIsloading(false)
         }
     }
 

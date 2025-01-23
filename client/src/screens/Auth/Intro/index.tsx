@@ -2,9 +2,11 @@ import { ImageBackground, Text, Image, View, StyleSheet, SafeAreaView} from "rea
 // import background from "../../../../assets/cloud_bg.png";
 import {ButtonPrimary, ButtonSecond} from '../..//../components/Button'
 import Colors from '../../../constants/Colors'
+import { useNavigation } from "@react-navigation/native";
 
 
 export default function IntroScreen(){
+    const navigation = useNavigation();
     return(
         // <View style= {styles.imageBackground}>
         <SafeAreaView style={styles.container}>
@@ -21,9 +23,9 @@ export default function IntroScreen(){
                 </View>
                 <View style={styles.btn}>
                     <ButtonPrimary 
-                    title='Đăng nhâp' onPress={()=>{}}
+                    title='Đăng nhâp' onPress={()=>{navigation.navigate("LoginScreen")}}
                     />
-                    <ButtonSecond title="Đăng ký" onPress={()=>{}}
+                    <ButtonSecond title="Đăng ký" onPress={()=>{navigation.navigate("RegistryScreen")}}
                     />
                 </View>
 

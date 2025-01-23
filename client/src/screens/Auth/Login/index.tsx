@@ -32,7 +32,7 @@ export default function LoginScreen(){
             const email = await AsyncStorage.getItem("auth");
             if(email){
                 handleChangeValue("email", JSON.parse(email))
-                console.log(values.email)
+                // console.log(values.email)
             }
         }
         getEmail()
@@ -41,7 +41,7 @@ export default function LoginScreen(){
         if(emailValidation){
             seterrorMessage('');
             if(passwordValidation){
-                // setIsloading(true)
+                setIsloading(true)
                 const api = `/login`;
                 try {
                     const res = await authenticationAPI.HandleAuthentication(

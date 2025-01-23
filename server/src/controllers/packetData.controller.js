@@ -33,8 +33,23 @@ const createOrUpdatePacketData = async (req, res) => {
 
 const getAllPacketData =  async (req, res) =>{
     try {
-        const packet = await packetDataService.getAllPacketData();
-        res.status(200).json(packet);
+        const packets = await packetDataService.getAllPacketData();
+        const data = [];
+        packets.forEach((packet) =>
+            data.push({
+                id: packet.id,
+                location: packet.location,
+                humidity: packet.dataset[3].dataValue,
+                temperature: packet.dataset[2].dataValue,
+                CO: packet.dataset[1].dataValue,
+                airQuality: packet.dataset[0].dataValue,
+                rain: packet.dataset[4].dataValue
+            })
+        );
+        res.status(200).json({
+            message: "Get packet successfully",
+            data
+        });
     } catch (error) {
         res.status(500).json({message: error.message});
     }

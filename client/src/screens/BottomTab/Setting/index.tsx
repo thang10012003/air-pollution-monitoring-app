@@ -7,6 +7,7 @@ import {Entypo} from '@expo/vector-icons';
 import { useDispatch, useSelector } from "react-redux"
 import { authSelector, removeAuth } from "../../../redux/reducers/authReducer"
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import React from "react"
 
 const  Setting = () =>{
     const url='https://vnn-imgs-a1.vgcloud.vn/image1.ictnews.vn/_Files/2020/03/17/trend-avatar-1.jpg'

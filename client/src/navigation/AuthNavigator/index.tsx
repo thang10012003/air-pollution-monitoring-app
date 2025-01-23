@@ -25,7 +25,7 @@ const AuthNavigator = () => {
                     headerShown: false,
                 }}
                 // initialRouteName='IntroScreen'
-                initialRouteName='LoginScreen'
+                initialRouteName='IntroScreen'
             >
                 <Screen
                     // name={screen.INTRO}
