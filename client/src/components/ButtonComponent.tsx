@@ -28,6 +28,7 @@ import Row from './Row';
     row?: boolean;
     borderColor?: string,
     borderWidth?: number,
+    radius?: number,
   }
   
   const ButtonComponent = (props: Props) => {
@@ -47,6 +48,7 @@ import Row from './Row';
       row, 
       borderColor,
       borderWidth,
+      radius
      } = props;
   
     return type === 'primary' ? (
@@ -65,7 +67,7 @@ import Row from './Row';
               justifyContent: 'center', 
               borderColor: borderColor,
               borderWidth: borderWidth,
-              borderRadius: 15
+              borderRadius: radius? radius : 15,
 
             },
             styles,

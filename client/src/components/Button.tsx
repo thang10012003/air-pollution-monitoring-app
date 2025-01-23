@@ -1,5 +1,6 @@
 import {View, TouchableOpacity, StyleSheet, Text} from 'react-native'
 import colors from './../constants/Colors'
+import React from 'react';
 
 
 type ButtonPrimaryProps = {
@@ -18,6 +19,7 @@ const ButtonPrimary = ({
     round = 15,
     full,
     title,
+    onPress
 
 }:ButtonPrimaryProps) =>{
     return (
@@ -32,7 +34,9 @@ const ButtonPrimary = ({
             // full && { width: "100%" },
 
 
-        ]}>
+        ]}
+        onPress={onPress}
+        >
             <Text style={styles.textPrimary}>{title}</Text>
         </TouchableOpacity>
     );
@@ -41,6 +45,7 @@ const ButtonSecond = ({
     round = 15,
     full,
     title,
+    onPress
 
 }:ButtonPrimaryProps) =>{
     return (
@@ -53,7 +58,9 @@ const ButtonSecond = ({
                 width:'auto',
             },
             // full && { width: "100%" },
-        ]}>
+        ]}
+        onPress={onPress}
+        >
             <Text style={styles.textSecond}>{title}</Text>
         </TouchableOpacity>
     );

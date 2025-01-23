@@ -7,6 +7,7 @@ import HistoryNavigator from './HistoryNavigator';
 import MapNavigator from './MapNavigator';
 import { BOTTOM_TAB_ROUTE } from "./route";
 import SettingNavigator from './SettingNavigator';
+import React from "react";
 
 const { Navigator, Screen } = createBottomTabNavigator();
 

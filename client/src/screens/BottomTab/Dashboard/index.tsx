@@ -1,7 +1,7 @@
 import { AntDesign, FontAwesome, Foundation } from "@expo/vector-icons";
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Avatar from "../../../components/Avatar";
@@ -11,6 +11,9 @@ import TextDefault from "../../../components/TextDefault";
 import Colors from "../../../constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import { authSelector } from "../../../redux/reducers/authReducer";
+import React from "react";
+import axiosClient from "../../../apis/axiosClient";
+import io from 'socket.io-client';
 
 function  Dashboard (){
     const [temperature, setTemperature] = useState<number | null>(null);
@@ -20,21 +23,51 @@ function  Dashboard (){
     const [sensorData, setSensorData] = useState([])
     const dispatch = useDispatch();
     const selector = useSelector(authSelector);
-    // const fetchSensorData = async () => {
-    //     try {
-    //       const response = await axiosClient.get(appInfo.BASE_URL+'/api/report'); // Thay bằng URL thực tế
-    //       setSensorData(response.data);
-    //     } catch (err) {
-    //       setError('Error fetching sensor data');
-    //     } finally {
-    //       setLoading(false);
-    //     }
-    //   };
+    const [dataset, setdataset] = useState()
+
+    const fetchData = async () =>{
+        try {
+            const api = '/api/packet'
+            // const res = await axiosClient.get<Location[]>(api);
+            const res  = await axiosClient.get(api);
+            setdataset(res.data);
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    // useEffect(() => {
+    //     fetchData()
+        
+    // },[])
+    // useEffect(() => {
+    //     console.log(dataset)
+        
+    // },[dataset])
+    useEffect(() => {
+        // Kết nối đến Socket.IO server
+        const socket = io('http://localhost:3000'); // Đổi URL thành URL Socket.IO server của bạn
     
-    //   // Gọi API khi component được mount
-    //   useEffect(() => {
-    //     fetchSensorData();
-    //   }, []);
+        // Lắng nghe khi kết nối thành công
+        socket.on('connect', () => {
+            console.log('Connected to Socket.IO server');
+            socket.emit('message', 'Hello from React Native!');
+        });
+    
+        // Lắng nghe sự kiện 'message' từ server
+        socket.on('fetchData', (data) => {
+            console.log('Message from server:', data);
+        });
+    
+        // Xử lý khi ngắt kết nối
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+        });
+            // Dọn dẹp khi component bị hủy
+        return () => {
+            socket.disconnect();
+        };
+    });
     return(
         <View style = {styles.container}>
             <StatusBar style="dark" backgroundColor="#A2EEE9"/>

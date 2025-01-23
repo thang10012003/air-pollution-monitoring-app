@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/userModel.js')
-
-router.get('/',)
+const UserController = require('../controllers/user.controller.js')
+router.post('/', UserController.sendEmailUser)
 
 
 module.exports = router
