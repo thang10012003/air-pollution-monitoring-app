@@ -3,14 +3,16 @@ const cors = require('cors');
 const connectDB = require('./configs/connectDb');
 const app = express();
 const errorMiddleware = require('./middlewares/errorMiddleware')
-const socketIo = require('socket.io');
 const http = require('http')
+const {initSocket, monitorSensorData} = require('./sockets/socket')
+
 
 // Tạo server HTTP từ app Express
 const server = http.createServer(app);
 
 // Khởi tạo socket.io và kết nối với server HTTP
-const io = socketIo(server);
+// Khởi động WebSocket
+const io = initSocket(server);
 
 app.use(cors());
 app.use(express.json());
@@ -23,6 +25,7 @@ app.use(apiRoutes);
 (async () => {
     try {
       await connectDB();
+      monitorSensorData();
     } catch (error) {
       console.error("Error syncing database:", error);
     }
@@ -38,20 +41,7 @@ app.use(errorMiddleware);
 //     console.log(`Server starting at http://localhost:${PORT}`);
 // });
 
-// Xử lý kết nối WebSocket với Socket.IO
-io.on('connection', (socket) => {
-  console.log('A user connected');
-  
-  // Lắng nghe sự kiện 'message' từ client
-  socket.on('fetchData', (data) => {
-      socket.emit('fetchData', { message: 'Hello from server!' });
-  });
 
-  // Khi client ngắt kết nối
-  socket.on('disconnect', () => {
-      console.log('A user disconnected');
-  });
-});
 
 // Chạy server với cả HTTP và WebSocket
 server.listen(PORT, () => {
