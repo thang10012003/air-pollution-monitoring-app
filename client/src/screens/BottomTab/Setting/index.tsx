@@ -8,11 +8,13 @@ import { useDispatch, useSelector } from "react-redux"
 import { authSelector, removeAuth } from "../../../redux/reducers/authReducer"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import React from "react"
+import { locationSelector,removeLocation } from "../../../redux/reducers/locationReducer"
 
 const  Setting = () =>{
     const url='https://vnn-imgs-a1.vgcloud.vn/image1.ictnews.vn/_Files/2020/03/17/trend-avatar-1.jpg'
     const dispatch = useDispatch();
     const selector = useSelector(authSelector);
+    const locationselector = useSelector(locationSelector);
     return(
         <View style = {styles.container}>
             <View style={styles.header}>
@@ -33,7 +35,13 @@ const  Setting = () =>{
                     borderWidth={2}
                     borderColor={Colors.light.danger}
                     // onPress={async()=> dispatch(removeAuth({}), await AsyncStorage.removeItem('auth'))}
-                    onPress={async()=> dispatch(removeAuth({}), await AsyncStorage.setItem('auth',JSON.stringify(selector.email) ))}
+                    onPress={async()=> dispatch(
+                        removeAuth({}), 
+                        await AsyncStorage.setItem('auth',JSON.stringify(selector.email) ),
+                        removeLocation({}),
+                        // await AsyncStorage.setItem('locationPermission', '' ),
+                        await AsyncStorage.removeItem('locationPermission') // Xóa quyền đã lưu
+                    )}
                 />
             </View>
         </View>

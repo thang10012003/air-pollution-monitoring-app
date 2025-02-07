@@ -1,5 +1,6 @@
 const PacketData = require("../models/packetDataModel.js");
 const Location = require("../models/locationModel.js");
+const {getLocationById} = require('../services/location.service');
 
 
 const calculateEvaluate = (dataset) => {
@@ -123,7 +124,7 @@ const calculateDistance = (loc1, loc2) => {
  */
 const findNearestPacketData = async (longitude, latitude) => {
     const packets = await PacketData.find({});
-
+    let newPacket = null;
     if (packets.length === 0) {
         throw new Error("No PacketData found in the database.");
     }
@@ -136,7 +137,7 @@ const findNearestPacketData = async (longitude, latitude) => {
 
         // Tìm latitude và longitude từ locationID
         const location = await Location.findById(locationID);
-        console.log(location);
+        // console.log(location);
         if (!location) {
             continue; // Nếu không tìm thấy location, bỏ qua
         }
@@ -151,10 +152,25 @@ const findNearestPacketData = async (longitude, latitude) => {
             minDistance = distance;
             nearestPacket = packet;
         }
-        console.log(longitude, latitude, distance);
+        // console.log(longitude, latitude, distance);
+        newPacket = {
+            id: nearestPacket.id,
+            location: nearestPacket.location,
+            latitude: packetLatitude,
+            longitude: packetLongitude,
+            humidity: nearestPacket.dataset[3].dataValue,
+            temperature: nearestPacket.dataset[2].dataValue,
+            CO: nearestPacket.dataset[1].dataValue,
+            airQuality: nearestPacket.dataset[0].dataValue,
+            rain: nearestPacket.dataset[5].dataValue,
+            dust: nearestPacket.dataset[4].dataValue,
+            evalute: nearestPacket.evaluate,
+            time: nearestPacket.dataset[3].timestamp,
+        }
+        // console.log(newPacket)
     }
 
-    return { nearestPacket, distance: minDistance };
+    return { newPacket,nearestPacket, distance: minDistance };
 };
 
 module.exports = {

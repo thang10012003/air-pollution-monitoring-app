@@ -1,5 +1,5 @@
 const packetDataService = require("../services/packetData.service");
-
+const {getLocationById} = require('../services/location.service');
 const createOrUpdatePacketData = async (req, res) => {
     try {
         const { location, dataset} = req.body;
@@ -38,12 +38,16 @@ const getAllPacketData =  async (req, res) =>{
         packets.forEach((packet) =>
             data.push({
                 id: packet.id,
-                location: packet.location,
+                longitude: getLocationById(packet.location).longitude,
+                latitude: getLocationById(packet.location).latitude,
                 humidity: packet.dataset[3].dataValue,
                 temperature: packet.dataset[2].dataValue,
                 CO: packet.dataset[1].dataValue,
                 airQuality: packet.dataset[0].dataValue,
-                rain: packet.dataset[4].dataValue
+                rain: packet.dataset[5].dataValue,
+                dust: packet.dataset[4].dataValue,
+                evalute: packet.evaluate,
+                time: packet.dataset[3].timestamp,
             })
         );
         res.status(200).json({
@@ -91,11 +95,24 @@ const getNearestPacketData = async (req, res) => {
             return res.status(400).json({ message: "Invalid longitude or latitude value." });
         }
 
-        const { nearestPacket, distance } = await packetDataService.findNearestPacketData(lon, lat);
+        const { newPacket, nearestPacket, distance } = await packetDataService.findNearestPacketData(lon, lat);
 
         res.status(200).json({
             message: "Nearest PacketData found successfully.",
-            data: nearestPacket,
+            data:({
+                id: newPacket.id,
+                longitude: getLocationById(newPacket.location).longitude,
+                latitude: getLocationById(newPacket.location).latitude,
+                humidity: newPacket.dataset[3].dataValue,
+                temperature: newPacket.dataset[2].dataValue,
+                CO: newPacket.dataset[1].dataValue,
+                airQuality: newPacket.dataset[0].dataValue,
+                rain: newPacket.dataset[5].dataValue,
+                dust: newPacket.dataset[4].dataValue,
+                evalute: newPacket.evaluate,
+                time: newPacket.dataset[3].timestamp,
+
+            }),
             distance: distance.toFixed(2),
         });
     } catch (error) {

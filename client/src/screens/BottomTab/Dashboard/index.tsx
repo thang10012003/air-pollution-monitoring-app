@@ -2,7 +2,7 @@ import { AntDesign, FontAwesome, Foundation } from "@expo/vector-icons";
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { Image, StyleSheet, View } from "react-native";
+import { Alert, Image, Linking, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Avatar from "../../../components/Avatar";
 import CircleComponent from '../../../components/CircleComponent';
@@ -11,19 +11,65 @@ import TextDefault from "../../../components/TextDefault";
 import Colors from "../../../constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import { authSelector } from "../../../redux/reducers/authReducer";
+import { addLocation, locationSelector } from "../../../redux/reducers/locationReducer";
 import React from "react";
 import axiosClient from "../../../apis/axiosClient";
 import io from 'socket.io-client';
-
+import * as Location from 'expo-location';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {initSocket, sendLocationToServer, closeSocket, listenToSensorData} from "../../../utils/socket";
+import { dateTransfer } from "../../../utils/date";
+import {getAddressFromCoordinates_OSM} from '../../../utils/getLocation'
+import SuggestionComponent from "../../../components/SuggestionComponent";
+import HourListComponent from "./Components/HourListComponent";
+import HalfCircleProgress from "./Components/HalfCircleProgress";
+// import SemiCircleProgress from "./Components/HalfCircleProgress";
+import ForecastDate from "./Components/DateListComponent";
+interface SensorData {
+    CO: string;
+    airQuality: string;
+    humidity: string;
+    id: string;
+    longitude: string;
+    latitude: string;
+    rain: string;
+    temperature: string;
+    dust: string;
+    evalute: string,
+    time: string,
+  }
+interface location{
+    district: string, 
+    city: string,
+}
 function  Dashboard (){
-    const [temperature, setTemperature] = useState<number | null>(null);
-    const [humidity, setHumidity] = useState<number | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [sensorData, setSensorData] = useState([])
+    const [sensorData, setSensorData] = useState<SensorData|null>(null)
     const dispatch = useDispatch();
-    const selector = useSelector(authSelector);
+    const authselector = useSelector(authSelector);
+    const locationselector = useSelector(locationSelector);
     const [dataset, setdataset] = useState()
+    const [location, setLocation] = useState({})
+    const [address, setaddress] = useState<location|null>(null)
+    const descriptions: { [key: string]: string } = {
+        "good": "Tốt",
+        "Moderate": "Trung bình",
+        "Unhealthy": "Không tốt", 
+        "Hazardous": "Nguy hiểm"
+    };
+    const colors: { [key: string]: string } = {
+        "Good": Colors.light.green,
+        "Moderate": Colors.light.yellow,
+        "Unhealthy": Colors.light.orange, 
+        "Hazardous": Colors.light.danger 
+    };
+    const level: { [key: string]: number } = {
+        "Good": 1,
+        "Moderate": 2,
+        "Unhealthy": 3, 
+        "Hazardous": 4
+    };
 
     const fetchData = async () =>{
         try {
@@ -35,41 +81,77 @@ function  Dashboard (){
             console.log(error)
         }
     }
-
-    // useEffect(() => {
-    //     fetchData()
-        
-    // },[])
-    // useEffect(() => {
-    //     console.log(dataset)
-        
-    // },[dataset])
+    const requestLocationPermission = async () => {
+        // Xóa trạng thái quyền lưu trữ trước đó (Nếu cần reset mỗi lần đăng xuất)
+        await AsyncStorage.removeItem('locationPermission');
+      
+        let { status, canAskAgain } = await Location.requestForegroundPermissionsAsync();
+      
+        if (status === 'granted') {
+            console.log("Quyền GPS được cấp!");
+            await AsyncStorage.setItem('locationPermission', 'granted');
+      
+            let location = await Location.getCurrentPositionAsync({});
+            dispatch(addLocation({
+                latitude: location.coords.latitude.toString(),
+                longitude: location.coords.longitude.toString()
+            }));
+          console.log("📍 Vị trí hiện tại:", location);
+          return  location.coords;
+        }
+      
+        if (status === 'denied' && canAskAgain) {
+          console.log("Người dùng từ chối quyền GPS. Hỏi lại...");
+          Alert.alert(
+            "Quyền GPS bị từ chối",
+            "Ứng dụng cần quyền truy cập vị trí. Bạn có muốn cấp lại không?",
+            [
+              { text: "Hủy", style: "cancel" },
+              { text: "Thử lại", onPress: () => requestLocationPermission() },
+            ]
+          );
+          return;
+        }
+      
+        if (status === 'denied' && !canAskAgain) {
+          console.log("Người dùng đã chọn 'Không hỏi lại'.");
+          Alert.alert(
+            "Quyền GPS bị vô hiệu hóa",
+            "Bạn đã từ chối quyền vị trí. Hãy vào Cài đặt để cấp lại quyền.",
+            [
+              { text: "Hủy", style: "cancel" },
+              { text: "Mở Cài Đặt", onPress: () => Linking.openSettings() },
+            ]
+          );
+          return;
+        }
+      };
     useEffect(() => {
-        // Kết nối đến Socket.IO server
-        const socket = io('http://localhost:3000'); // Đổi URL thành URL Socket.IO server của bạn
-    
-        // Lắng nghe khi kết nối thành công
-        socket.on('connect', () => {
-            console.log('Connected to Socket.IO server');
-            socket.emit('message', 'Hello from React Native!');
+        initSocket();
+        // Lắng nghe dữ liệu cảm biến liên tục
+        listenToSensorData((data) => {
+            console.log("Data server gửi về :", data)
+            setSensorData(data); // Cập nhật dữ liệu khi có thông tin mới
         });
-    
-        // Lắng nghe sự kiện 'message' từ server
-        socket.on('fetchData', (data) => {
-            console.log('Message from server:', data);
-        });
-    
-        // Xử lý khi ngắt kết nối
-        socket.on('disconnect', () => {
-            console.log('Disconnected from server');
-        });
-            // Dọn dẹp khi component bị hủy
-        return () => {
-            socket.disconnect();
+        (async() => {
+            const loc = await requestLocationPermission();
+            if(loc){
+                setLocation(loc);
+                console.log("GỬi dịnh vị:", loc)
+                sendLocationToServer(loc.latitude.toString(), loc.longitude.toString());
+                const address = await getAddressFromCoordinates_OSM(loc.latitude.toString(), loc.longitude.toString());
+                setaddress(address)
+
+            }
+        })();
+        return ()=> {
+            closeSocket();
         };
-    });
+    },[]);
+
     return(
-        <View style = {styles.container}>
+        // <View style = {styles.container}>
+        <ScrollView style = {styles.container}>
             <StatusBar style="dark" backgroundColor="#A2EEE9"/>
             <SafeAreaView style={[{flex: 1, backgroundColor: Colors.light.grey}]}>
                 <LinearGradient 
@@ -83,7 +165,7 @@ function  Dashboard (){
                                 <Avatar url='https://vnn-imgs-a1.vgcloud.vn/image1.ictnews.vn/_Files/2020/03/17/trend-avatar-1.jpg'/>
                                 <Row direction="column" style={[{marginLeft:20}]}>
                                     <TextDefault style={styles.text}>Chào buổi sáng</TextDefault>
-                                    <TextDefault bold style={styles.text}>{selector.email}</TextDefault>
+                                    <TextDefault bold style={styles.text}>{authselector.email}</TextDefault>
                                 </Row>
 
                             </Row>
@@ -97,16 +179,18 @@ function  Dashboard (){
                         <View style={styles.boxContainer}>
                             <Image source={require('../../../../assets/images/sun.png')} style={styles.iconSun}/>
                             <Row direction="column" start>
-                                <TextDefault style={styles.text}>Quận 7, TP.HCM</TextDefault>
-                                <Row>
-                                    <TextDefault bold style={styles.text}>10:00</TextDefault>
+                                {/* <TextDefault style={styles.text}>Quận 7, TP.HCM</TextDefault> */}
+                                <TextDefault style={styles.text}>{address?.district}</TextDefault>
+                                <TextDefault style={styles.text}>{address?.city}</TextDefault>
+                                <Row evenly>
+                                    <TextDefault bold style={styles.text}>{dateTransfer.getTime(sensorData?.time)}</TextDefault>
                                     <View style={styles.number}>
                                         <Image style={styles.icon} source={require('../../../../assets/images/temperature.png')}/>
-                                        <TextDefault style={styles.text}>37 C</TextDefault>
+                                        {<TextDefault style={styles.text}>{sensorData?.temperature} °C</TextDefault>}
                                     </View>
                                     <View style={styles.number}>
                                         <Image style={styles.icon} source={require('../../../../assets/images/humidity.png')}/>
-                                        <TextDefault style={styles.text}>20%</TextDefault>
+                                        <TextDefault style={styles.text}>{sensorData?.humidity}%</TextDefault>
                                     </View>
                                 </Row>
                             </Row>
@@ -116,17 +200,20 @@ function  Dashboard (){
                 </LinearGradient>
                 <View style={styles.body}>
                     <Row direction="row" colGap={10} style={[{height: 120}]}>
-                        <View style={[styles.box,{flex: 1, flexDirection:"column", height: '100%'}]}>
+                        <View style={[styles.box,{flex: 1, flexDirection:"column", height: '100%', alignItems:'center'}]}>
                             <Row direction="row">
                                 <Image style={styles.icon} source={require('../../../../assets/images/dust.png')}/>
                                 <TextDefault style={[{color: Colors.light.greyBlack}]}>BỤI MỊN 2.5</TextDefault>
                             </Row>
-                            <TextDefault bold style={[{color: Colors.light.text, fontSize: 32}]}>50</TextDefault>
-                            <TextDefault bold style={[{color: Colors.light.text, fontSize: 20}]}>Thấp</TextDefault>
+                            <TextDefault bold style={[{color: Colors.light.text, fontSize: 25, paddingVertical:10}]}>{sensorData?.dust}</TextDefault>
+                            {/* <TextDefault bold style={[{color: Colors.light.text, fontSize: 20}]}>Thấp</TextDefault> */}
                         </View>
                         <View style={[styles.box, {flex: 2, height: "100%"}]}>
-                            <TextDefault style={[{color: Colors.light.greyBlack}]}>AQI</TextDefault>
-                            <TextDefault bold style={[{color: Colors.light.text, fontSize: 20}]}>Tốt</TextDefault>
+                            <TextDefault style={[{color: Colors.light.greyBlack}]}>Đánh giá chất lượng</TextDefault>
+                            <View style={{justifyContent: 'center', alignItems: 'center', paddingTop: 20}}>
+                                <HalfCircleProgress level={level[sensorData?.evalute || 1]}></HalfCircleProgress>
+                                {/* <TextDefault bold style={[{color: colors[ sensorData?.evalute|| Colors.light.text], fontSize: 20}]}>{descriptions[ sensorData?.evalute|| "good"]}</TextDefault> */}
+                            </View>
                         </View>
                     </Row>
                     <View style={styles.box}>
@@ -134,6 +221,7 @@ function  Dashboard (){
                             <Foundation name="lightbulb" size={32} color={Colors.light.yellow}/>
                             <TextDefault bold style={[{color: Colors.light.greyBlack, width: 'auto'}]}>Lời khuyên dành cho bạn</TextDefault>
                         </View>
+                        <SuggestionComponent iconType={sensorData?.evalute}/>
                         
                     </View>
                     <View style={styles.box}>
@@ -141,16 +229,19 @@ function  Dashboard (){
                             <FontAwesome name="hourglass-1" size={32} color={Colors.light.yellow}/>
                             <TextDefault bold style={[{color: Colors.light.greyBlack, width: 'auto'}]}>Dự đoán theo giờ</TextDefault>
                         </View>
+                        <HourListComponent></HourListComponent>
                     </View>
                     <View style={styles.box}>
                         <View style={[{flexDirection:'row', alignItems:'center'}]}>
                             <AntDesign name="calendar" size={32} color={Colors.light.yellow}/>
                             <TextDefault bold style={[{color: Colors.light.greyBlack, width: 'auto'}]}>Dự đoán trong 3 ngày tới</TextDefault>
                         </View>
+
                     </View>
                 </View>
+
             </SafeAreaView>
-        </View>
+        </ScrollView>
     )
 }   
 export default Dashboard
@@ -200,13 +291,13 @@ const styles = StyleSheet.create({
     icon:{
         height: 28,
         width: 28,
-        marginRight: 10,
+        marginRight: 0,
     },
     number:{
         flexDirection:'row',
         justifyContent:'center',
         alignItems:'center',
-        marginLeft: 20,
+        marginLeft: 10,
     },
     cloud:{
         height: 80,

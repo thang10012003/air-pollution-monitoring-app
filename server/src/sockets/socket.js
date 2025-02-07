@@ -1,8 +1,9 @@
 const socketIo = require('socket.io');
 const PacketData = require("../models/packetDataModel.js");
 const {findNearestPacketData} = require('../services/packetData.service.js')
-let io;
 
+let io;
+const clients = [];
 const initSocket = (server) => {
     io = socketIo(server);
 
@@ -10,17 +11,23 @@ const initSocket = (server) => {
         console.log(' A user connected', socket.id);
 
         // Khi client gửi vị trí của mình (lúc kết nối hoặc khi thay đổi vị trí)
-        socket.on('registerLocation', (location) => {
-            registerClient(socket, location);
-        });
+        // socket.on('registerLocation', (location) => {
+        socket.on('registerLocation', async(location) => {
+            // registerClient(socket, location);
+            console.log("Location:", location)
+            clients[socket.id] = location;
+            // const nearestData = await findNearestPacketData(location.longitude, location.latitude);
+            const {newPacket, nearestPacket, distance } = await findNearestPacketData(location.longitude, location.latitude);
+            if (newPacket) {
+              socket.emit("sensorData", newPacket);
+          } else {
+              socket.emit("sensorData", { error: "Không tìm thấy cảm biến gần nhất!" });
+          }
 
-        // Lắng nghe sự kiện 'fetchData' từ client
-        socket.on('fetchData', (data) => {
-            socket.emit('fetchData', { message: 'Hello from server!' });
         });
 
         socket.on('disconnect', () => {
-            console.log('A user disconnected');
+            console.log('❌ Client disconnected:', socket.id);
             // Xóa client khỏi danh sách khi ngắt kết nối
             delete clients[socket.id];
         });
@@ -35,23 +42,22 @@ const getIo = () => {
 };
 ///////////////////////////////////////////////////
 // Danh sách client với vị trí GPS
-const clients = {};
 
 const monitorSensorData = () => {
-  const changeStream = PacketData.watch();
+  const changeStream = PacketData.watch([], { fullDocument: "updateLookup" });
 
   changeStream.on('change', async (change) => {
-    if (change.operationType === 'insert') {
+    if (change.operationType === 'insert'|| change.operationType === 'update') {
       const newData = change.fullDocument;
-      console.log(' Cảm biến gửi dữ liệu mới:', newData);
+      // console.log(' Cảm biến gửi dữ liệu mới:', newData);
 
       // Gửi dữ liệu mới cho tất cả client theo vị trí
       for (const clientId in clients) {
         const clientLocation = clients[clientId];
 
-        const nearestData = await findNearestPacketData(clientLocation.longitude, clientLocation.latitude);
-        if (nearestData) {
-          io.to(clientId).emit('sensorData', nearestData);
+        const {newPacket, nearestPacket, distance }  = await findNearestPacketData(clientLocation.longitude, clientLocation.latitude);
+        if (newPacket) {
+          io.to(clientId).emit('sensorData', newPacket);
         }
       }
     }

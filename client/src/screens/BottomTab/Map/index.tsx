@@ -10,14 +10,18 @@ import { LoadingModal } from "../../../modals";
 import { ButtonPrimary } from "../../../components";
 import ButtonComponent from "../../../components/ButtonComponent";
 import {Entypo} from '@expo/vector-icons';
-
-
+import { useDispatch, useSelector } from "react-redux";
+import { addLocation, locationSelector } from "../../../redux/reducers/locationReducer";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Location from 'expo-location';
 
 const  Map = () =>{
     const [locations, setlocations] = useState<LocationType []>([]);
     const [currentPos, setcurrentPos] = useState('')
     const [currentIndex, setCurrentIndex] = useState(0); // Index hiện tại trong danh sách  
     const [isloading, setisloading] = useState(true);
+    const dispatch = useDispatch();
+    const locationselector = useSelector(locationSelector)
     const fetchLocations = async() => {
         try {
             const api = '/api/location'
@@ -29,7 +33,9 @@ const  Map = () =>{
         }
     }
     useEffect(() => {
-        fetchLocations()
+        fetchLocations();
+        console.log(locationselector)
+        // requestLocationPermission()
     },[])
     const initialRegion = {
         latitude: 10.7319314,
@@ -101,7 +107,7 @@ const  Map = () =>{
                     ref={mapRef}
                     style={styles.map}
                     showsMyLocationButton
-                    showsUserLocation
+                    showsUserLocation={true}
                     initialRegion={initialRegion}
                 >
                     {locations.map((location) => (
@@ -116,6 +122,9 @@ const  Map = () =>{
                         />
 
                     ))}
+                    <Marker coordinate={{ latitude: Number(locationselector.latitude), longitude: Number(locationselector.longitude) }}
+                     title="Your Location"
+                     pinColor="blue" />
                 </MapView>
                 ) : (
                     <LoadingModal visible={isloading}/>

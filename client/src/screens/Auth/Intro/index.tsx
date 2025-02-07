@@ -3,6 +3,7 @@ import { ImageBackground, Text, Image, View, StyleSheet, SafeAreaView} from "rea
 import {ButtonPrimary, ButtonSecond} from '../..//../components/Button'
 import Colors from '../../../constants/Colors'
 import { useNavigation } from "@react-navigation/native";
+import React from "react";
 
 
 export default function IntroScreen(){
@@ -23,7 +24,7 @@ export default function IntroScreen(){
                 </View>
                 <View style={styles.btn}>
                     <ButtonPrimary 
-                    title='Đăng nhâp' onPress={()=>{navigation.navigate("LoginScreen")}}
+                    title='Đăng nhập' onPress={()=>{navigation.navigate("LoginScreen")}}
                     />
                     <ButtonSecond title="Đăng ký" onPress={()=>{navigation.navigate("RegistryScreen")}}
                     />

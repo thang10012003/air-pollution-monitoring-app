@@ -60,7 +60,9 @@ export default function LoginScreen(){
                     setIsloading(false);
                     console.log(res)
                 } catch (error) {
-                    console.log(error)
+                    setIsloading(false);
+                    seterrorMessage("Sai mật khẩu!!!")
+                    console.log("Sai mật khẩu")
                 }
             }else{
                 seterrorMessage("Mật khẩu ít nhất 6 kí tự!!!")
