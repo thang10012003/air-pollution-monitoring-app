@@ -25,6 +25,7 @@ import HourListComponent from "./Components/HourListComponent";
 import HalfCircleProgress from "./Components/HalfCircleProgress";
 // import SemiCircleProgress from "./Components/HalfCircleProgress";
 import ForecastDate from "./Components/DateListComponent";
+import { Validate } from "../../../utils/validation";
 interface SensorData {
     CO: string;
     airQuality: string;
@@ -132,7 +133,7 @@ function  Dashboard (){
         listenToSensorData((data) => {
             console.log("Data server gửi về :", data)
             setSensorData(data); // Cập nhật dữ liệu khi có thông tin mới
-        });
+        },authselector.email);
         (async() => {
             const loc = await requestLocationPermission();
             if(loc){
@@ -165,7 +166,7 @@ function  Dashboard (){
                                 <Avatar url='https://vnn-imgs-a1.vgcloud.vn/image1.ictnews.vn/_Files/2020/03/17/trend-avatar-1.jpg'/>
                                 <Row direction="column" style={[{marginLeft:20}]}>
                                     <TextDefault style={styles.text}>Chào buổi sáng</TextDefault>
-                                    <TextDefault bold style={styles.text}>{authselector.email}</TextDefault>
+                                    <TextDefault bold style={styles.text}>{Validate.extractNameFromEmail(authselector.email)}</TextDefault>
                                 </Row>
 
                             </Row>

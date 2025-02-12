@@ -79,8 +79,9 @@ const styles = StyleSheet.create({
     container: {
         justifyContent: 'center',
         alignItems: 'center',
-        flex: 1,
+        // flex: 1,
         backgroundColor: Colors.light.background,
-        paddingHorizontal: 30,
+        paddingHorizontal: 20,
+        paddingTop: 100,
     },
 });

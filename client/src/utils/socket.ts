@@ -3,19 +3,20 @@ import { appInfo } from '../constants/appInfo';
 
 // const SOCKET_SERVER = 'https://air-pollution-monitoring-app.onrender.com'; // Thay YOUR_PC_IP bằng địa chỉ IP máy chủ
 const SOCKET_SERVER = appInfo.BASE_URL; // Thay YOUR_PC_IP bằng địa chỉ IP máy chủ
-
 let socket:Socket| null = null;
-
-// // Lắng nghe khi kết nối thành công
-// newSocket.on('connect', () => {
-//     console.log('Connected to Socket.IO server');
-//     // socket.emit('message', 'Hello from React Native!');
-// });
-// const sendLocationToServer = (latitude: String, longitude:String) => {
-//     socket.emit("registerLocation", { latitude, longitude });
-//   };
-
-// export default newSocket
+interface SensorData {
+  CO: string;
+  airQuality: string;
+  humidity: string;
+  id: string;
+  longitude: string;
+  latitude: string;
+  rain: string;
+  temperature: string;
+  dust: string;
+  evalute: string,
+  time: string,
+}
 
 export const initSocket = () => {
   if (!socket) {
@@ -54,7 +55,8 @@ export const sendLocationToServer = (latitude: string, longitude: string) => {
 //         });
 //     }
 // };
-export const listenToSensorData = (callback: (data: any) => void) => {
+export const listenToSensorData = (callback: (data: any) => void,userEmail: string) => {
+
     if (!socket) {
         console.log("⚠️ Socket chưa được khởi tạo!");
         return;
@@ -66,6 +68,9 @@ export const listenToSensorData = (callback: (data: any) => void) => {
     // Đăng ký lắng nghe dữ liệu cảm biến
     socket.on("sensorData", (data) => {
         console.log("📥 Nhận dữ liệu cảm biến mới:", data);
+        if(data.evalute ==="Hazardous"){
+          sendEmailAlert(userEmail, "Cảnh báo", "Tình trạng khu vực của bạn đã vượt mức an toàn!!!")
+        }
         callback(data);
     });
 
@@ -76,4 +81,24 @@ export const closeSocket = () => {
     socket.disconnect();
     socket = null;
   }
+};
+const sendEmailAlert = async (email: string, name:string, text:string) => {
+    try {
+        const response = await fetch(appInfo.BASE_URL+"/api/user", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                email,
+                name,
+                text,
+            }),
+        });
+
+        const result = await response.json();
+        console.log("📧 Kết quả gửi email:", result);
+    } catch (error) {
+        console.error("❌ Lỗi khi gửi email:", error);
+    }
 };

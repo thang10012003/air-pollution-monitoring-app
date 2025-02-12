@@ -80,7 +80,7 @@ const DateList = () => {
 const styles = StyleSheet.create({
   container:{
     flexDirection: 'row',
-    backgroundColor: Colors.light.input,
+    backgroundColor: Colors.light.white,
 
   },
   scroll:{
