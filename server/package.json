@@ -20,6 +20,7 @@
     "mongoose": "^8.9.5",
     "nodemailer": "^6.9.16",
     "nodemon": "^3.1.9",
+    "onnxruntime-node": "^1.20.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1"
   }
