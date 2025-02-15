@@ -1,6 +1,6 @@
 const PacketData = require("../models/packetDataModel.js");
+const HourlyData = require("../models/hourlyDataModel.js");
 const Location = require("../models/locationModel.js");
-const {getLocationById} = require('../services/location.service');
 
 
 const calculateEvaluate = (dataset) => {
@@ -22,24 +22,20 @@ const calculateEvaluate = (dataset) => {
 };
 
 const createOrUpdatePacketData = async (location, dataset) => {
-    // Tìm PacketData theo location
     let packetData = await PacketData.findOne({ location });
-
+    
     if (packetData) {
-        // Cập nhật dataset hiện có
         for (const newSensor of dataset) {
             const existingSensor = packetData.dataset.find(
                 (sensor) => sensor.dataType === newSensor.dataType
             );
 
             if (existingSensor) {
-                // Nếu giá trị đã thay đổi, cập nhật nó
                 if (existingSensor.dataValue !== newSensor.dataValue) {
                     existingSensor.dataValue = newSensor.dataValue;
-                    existingSensor.timestamp = new Date(); // Cập nhật timestamp
+                    existingSensor.timestamp = new Date();
                 }
             } else {
-                // Nếu không tồn tại, thêm mới sensor
                 packetData.dataset.push({
                     dataType: newSensor.dataType,
                     dataValue: newSensor.dataValue,
@@ -47,25 +43,120 @@ const createOrUpdatePacketData = async (location, dataset) => {
                 });
             }
         }
-
-        // Tính lại evaluate dựa trên dataset mới
         packetData.evaluate = calculateEvaluate(packetData.dataset);
     } else {
-        // Nếu không tồn tại, tạo mới PacketData
         packetData = new PacketData({
             location,
-            dataset: dataset.map((data) => ({
-                dataType: data.dataType,
-                dataValue: data.dataValue,
+            dataset: dataset.map(sensor => ({
+                dataType: sensor.dataType,
+                dataValue: sensor.dataValue,
                 timestamp: new Date(),
             })),
             evaluate: calculateEvaluate(dataset),
         });
     }
 
-    // Lưu vào database
-    return await packetData.save();
+    await packetData.save();
+
+    // ✅ Xử lý HourlyData
+    const packetId = packetData._id;
+    const now = new Date();
+    const startOfDay = new Date(now.setHours(0, 0, 0, 0));
+    const date = new Date();
+    let hourlyData = await HourlyData.findOne({ packetId });
+
+    if (!hourlyData) {
+        hourlyData = new HourlyData({
+            packetId,
+            dates: []
+        });
+    }
+
+    let dateEntry = hourlyData.dates.find(entry => entry.date.getTime() === startOfDay.getTime());
+
+    if (!dateEntry) {
+        dateEntry = { date: startOfDay, timeSeries: [] };
+        hourlyData.dates.push(dateEntry);
+    }
+
+    const avgValues = calculateAverages(packetData.dataset);
+    console.log(avgValues);
+    function calculateAverages(dataset) {
+        const avg = { temperature: 0, humidity: 0, CO: 0, CO2: 0, dust: 0 };
+        let count = { temperature: 0, humidity: 0, CO: 0, CO2: 0, dust: 0 };
+
+        dataset.forEach(sensor => {
+            // if (typeof sensor.dataValue !== 'number' || isNaN(sensor.dataValue)) return;
+            switch (sensor.dataType) {
+                case "TEMPERATURE":
+                    avg.temperature += sensor.dataValue;
+                    count.temperature++;
+                    break;
+                case "HUMIDITY":
+                    avg.humidity += sensor.dataValue;
+                    count.humidity++;
+                    break;
+                case "CO":
+                    avg.CO += sensor.dataValue;
+                    count.CO++;
+                    break;
+                case "AIR_QUALITY":
+                    avg.CO2 += sensor.dataValue;
+                    count.CO2++;
+                    break;
+                case "DUST":
+                    avg.dust += sensor.dataValue;
+                    count.dust++;
+                    break;
+            }
+        });
+
+        Object.keys(avg).forEach(key => {
+            if (count[key] > 0) avg[key] /= count[key];
+        });
+
+        return avg;
+    }
+
+    function getNearestHourSlot(date) {
+        const hour = date.getHours();
+        return Math.floor(hour / 3) * 3; // Làm tròn về mốc gần nhất
+    }
+
+    const nearestHour = getNearestHourSlot(date);
+    console.log("Mốc thời gian cập nhật:", nearestHour);
+
+    const updateAverage = (oldValue, newValue) => {
+        if (typeof newValue !== 'number' || isNaN(newValue)) return oldValue ?? 0;
+        if (typeof oldValue !== 'number' || isNaN(oldValue)) return newValue;
+        return (oldValue + newValue) / 2;
+    };
+
+    let timeSeriesEntry = dateEntry.timeSeries.find(entry => entry.hour === nearestHour);
+
+    if (timeSeriesEntry) {
+        timeSeriesEntry.dataset.temperature = updateAverage(timeSeriesEntry.dataset.temperature, avgValues.temperature);
+        timeSeriesEntry.dataset.humidity = updateAverage(timeSeriesEntry.dataset.humidity, avgValues.humidity);
+        timeSeriesEntry.dataset.CO = updateAverage(timeSeriesEntry.dataset.CO, avgValues.CO);
+        timeSeriesEntry.dataset.CO2 = updateAverage(timeSeriesEntry.dataset.CO2, avgValues.CO2);
+        timeSeriesEntry.dataset.dust = updateAverage(timeSeriesEntry.dataset.dust, avgValues.dust);
+    } else {
+        dateEntry.timeSeries.push({
+            hour: nearestHour,
+            dataset: {
+                temperature: avgValues.temperature ?? 0,
+                humidity: avgValues.humidity ?? 0,
+                CO: avgValues.CO ?? 0,
+                CO2: avgValues.CO2 ?? 0,
+                dust: avgValues.dust ?? 0
+            }
+        });
+    }
+
+    await hourlyData.save();
 };
+
+
 
 const deleteDatasetByType = async (location, dataType) => {
     // Tìm packet theo location

@@ -5,7 +5,7 @@ const app = express();
 const errorMiddleware = require('./middlewares/errorMiddleware')
 const http = require('http')
 const {initSocket, monitorSensorData} = require('./sockets/socket')
-
+// const {processGoogleSheetData} = require('./services/processExcel')
 
 // Tạo server HTTP từ app Express
 const server = http.createServer(app);
@@ -26,6 +26,7 @@ app.use(apiRoutes);
     try {
       await connectDB();
       monitorSensorData();
+      // processGoogleSheetData();
     } catch (error) {
       console.error("Error syncing database:", error);
     }

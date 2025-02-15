@@ -1,38 +1,28 @@
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 
 const HourlyDataSchema = new mongoose.Schema({
-    hour_start: {
-        type: Date,
+    packetId: {
+        type: String,
         required: true,
+        ref: "PacketData"
     },
-    avg_values: [
+    dates: [
         {
-            dataType: { type: String, required: true }, 
-            avgValue: { type: mongoose.Schema.Types.Decimal128, required: true },
-        },
-    ],
-    min_values: [
-        {
-            dataType: { type: String, required: true }, 
-            minValue: { type: mongoose.Schema.Types.Decimal128, required: true }, 
-        },
-    ],
-    max_values: [
-        {
-            dataType: { type: String, required: true }, 
-            maxValue: { type: mongoose.Schema.Types.Decimal128, required: true },
-        },
-    ],
-    data_count: {
-        type: Number, 
-        default: 0,
-    },
-    packetIds: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "PacketData", 
-        },
-    ],
+            date: { type: Date, required: true }, // Ngày lưu dữ liệu
+            timeSeries: [
+                {
+                    hour: { type: Number, required: true }, // Mốc thời gian (0, 3, 6, ...)
+                    dataset: {
+                        temperature: { type: Number, required: true }, // Giá trị trung bình nhiệt độ
+                        humidity: { type: Number, required: true },    // Giá trị trung bình độ ẩm
+                        CO2: { type: Number, required: true },        // Giá trị trung bình CO2
+                        CO: { type: Number, required: true },         // Giá trị trung bình CO
+                        dust: { type: Number, required: true }        // Giá trị trung bình bụi
+                    }
+                }
+            ]
+        }
+    ]
 });
 
 const HourlyDataModel = mongoose.model("HourlyData", HourlyDataSchema);
