@@ -1,6 +1,6 @@
 const PacketData = require("../models/packetDataModel.js");
+const HourlyData = require("../models/hourlyDataModel.js");
 const Location = require("../models/locationModel.js");
-const {getLocationById} = require('../services/location.service');
 
 
 const calculateEvaluate = (dataset) => {
@@ -52,19 +52,101 @@ const createOrUpdatePacketData = async (location, dataset) => {
         packetData.evaluate = calculateEvaluate(packetData.dataset);
     } else {
         // Nếu không tồn tại, tạo mới PacketData
-        packetData = new PacketData({
-            location,
-            dataset: dataset.map((data) => ({
-                dataType: data.dataType,
-                dataValue: data.dataValue,
-                timestamp: new Date(),
-            })),
-            evaluate: calculateEvaluate(dataset),
-        });
+        packetData = {
+            id: nearestPacket.id,
+            location: nearestPacket.location,
+            latitude: packetLatitude,
+            longitude: packetLongitude,
+            humidity: nearestPacket.dataset[3].dataValue,
+            temperature: nearestPacket.dataset[2].dataValue,
+            CO: nearestPacket.dataset[1].dataValue,
+            airQuality: nearestPacket.dataset[0].dataValue,
+            rain: nearestPacket.dataset[5].dataValue,
+            dust: nearestPacket.dataset[4].dataValue,
+            evalute: nearestPacket.evaluate,
+            time: nearestPacket.dataset[3].timestamp,
+        }
     }
 
     // Lưu vào database
-    return await packetData.save();
+    await packetData.save();
+
+    //Tạo hourly data nếu có dữ liệu mới
+    const now = new Date();
+    const startOfHour = new Date(now.setMinutes(0, 0, 0)); // Cắt về đầu giờ hiện tại
+    const endOfHour = new Date(startOfHour.getTime() + 60 * 60 * 1000); // Kết thúc giờ
+
+    // Lấy tất cả các PacketData trong giờ hiện tại
+    const packets = await PacketData.find({
+        location,
+        "dataset.timestamp": { $gte: startOfHour, $lt: endOfHour }
+    });
+
+    if (packets.length > 0) {
+        // Tính trung bình các giá trị
+        const avgValues = {
+            humidity: 0,
+            temperature: 0,
+            CO: 0,
+            airQuality: 0,
+            rain: 0,
+            dust: 0,
+        };
+
+        const count = { humidity: 0, temperature: 0, CO: 0, airQuality: 0, rain: 0, dust: 0 };
+
+        packets.forEach(packet => {
+            packet.dataset.forEach(sensor => {
+                if (avgValues.hasOwnProperty(sensor.dataType)) {
+                    avgValues[sensor.dataType] += parseFloat(sensor.dataValue);
+                    count[sensor.dataType]++;
+                }
+            });
+        });
+
+        // Chia lấy trung bình
+        for (let key in avgValues) {
+            if (count[key] > 0) {
+                avgValues[key] /= count[key];
+            }
+        }
+
+        // Cập nhật hoặc tạo mới dữ liệu HourlyData
+        let hourlyData = await HourlyData.findOne({ location, timestamp: startOfHour });
+
+        if (hourlyData) {
+            // Cập nhật dữ liệu trung bình của giờ hiện tại
+            hourlyData.humidity = avgValues.humidity || hourlyData.humidity;
+            hourlyData.temperature = avgValues.temperature || hourlyData.temperature;
+            hourlyData.CO = avgValues.CO || hourlyData.CO;
+            hourlyData.airQuality = avgValues.airQuality || hourlyData.airQuality;
+            hourlyData.rain = avgValues.rain || hourlyData.rain;
+            hourlyData.dust = avgValues.dust || hourlyData.dust;
+            hourlyData.evaluate = calculateEvaluate([
+                { dataType: "AIR_QUALITY", dataValue: avgValues.airQuality },
+                { dataType: "CO", dataValue: avgValues.CO }
+            ]);
+        } else {
+            // Nếu chưa có, tạo mới dữ liệu hourly
+            hourlyData = new HourlyData({
+                location,
+                timestamp: startOfHour,
+                humidity: avgValues.humidity || null,
+                temperature: avgValues.temperature || null,
+                CO: avgValues.CO || null,
+                airQuality: avgValues.airQuality || null,
+                rain: avgValues.rain || null,
+                dust: avgValues.dust || null,
+                evaluate: calculateEvaluate([
+                    { dataType: "AIR_QUALITY", dataValue: avgValues.airQuality },
+                    { dataType: "CO", dataValue: avgValues.CO }
+                ]),
+            });
+        }
+
+        await hourlyData.save(); // Lưu HourlyData
+    }
+
 };
 
 const deleteDatasetByType = async (location, dataType) => {
