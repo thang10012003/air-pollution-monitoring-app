@@ -13,13 +13,13 @@ const getAQIInfo = (level: number) => {
   return AQI_LEVELS.find((l) => l.value === level) || AQI_LEVELS[0];
 };
 
-const HalfCircleProgress = ({ level = 1 }: { level?: number }) => {
+const HalfCircleProgress = ({ level = 1, size = 120 }: { level?: number, size?: number }) => {
   const { color, label } = getAQIInfo(level);
-  const size = 120;
-  const radius = size / 2 - 10;
+  const sizeChart = size??120;
+  const radius = sizeChart / 2 - 10;
   const strokeWidth = 15;
-  const cx = size / 2;
-  const cy = size / 2;
+  const cx = sizeChart / 2;
+  const cy = sizeChart / 2;
 
   // Xử lý level hợp lệ để tránh NaN
   const safeLevel = Math.max(1, Math.min(level, AQI_LEVELS.length));
@@ -35,7 +35,7 @@ const HalfCircleProgress = ({ level = 1 }: { level?: number }) => {
 
   return (
     <View style={styles.container}>
-      <Svg width={size} height={size / 2}>
+      <Svg width={sizeChart} height={sizeChart / 2}>
         {/* Vòng nền */}
         <Circle
           cx={cx}

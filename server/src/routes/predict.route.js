@@ -90,7 +90,17 @@ predictRouter.get("/predict", async (req, res) => {
         // console.log(reshapedPredictions);
         // Trả về kết quả
         // return res.json({   realPredictions});
-        return res.json({   realPredictions});
+
+
+
+        return res.status(200).json({
+            message: "Predicted successfully.",
+            data:({
+                realPredictions
+            })})
+        // return res.json({   realPredictions});
+
+        
 
     } catch (error) {
         console.error("❌ Lỗi khi dự đoán:", error);

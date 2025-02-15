@@ -19,6 +19,7 @@ const generateHourlyData = () => {
         value: Math.floor(Math.random() * 101), // Dự đoán giá trị từ 0-100
       });
     }
+    // console.log(hours)
   
     return hours;
   };

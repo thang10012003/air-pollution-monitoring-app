@@ -28,6 +28,8 @@ import ForecastDate from "./Components/DateListComponent";
 import { Validate } from "../../../utils/validation";
 import { useNavigation } from "@react-navigation/native";
 import DataDetail from "./DataDetail";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../../navigation/BottomTabNavigator/DashboardNavigator";
 interface SensorData {
     CO: string;
     airQuality: string;
@@ -45,8 +47,10 @@ interface location{
     district: string, 
     city: string,
 }
+type DashboardNavigationProp = NativeStackNavigationProp<RootStackParamList, "DashboardScreen">;
+
 function  Dashboard (){
-    const navigation = useNavigation();
+    const navigation = useNavigation<DashboardNavigationProp>();
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [sensorData, setSensorData] = useState<SensorData|null>(null)
@@ -75,11 +79,23 @@ function  Dashboard (){
         "Hazardous": 4
     };
 
-    const fetchData = async () =>{
+    // const fetchData = async () =>{
+    //     try {
+    //         const api = '/api/packet'
+    //         // const res = await axiosClient.get<Location[]>(api);
+    //         const res  = await axiosClient.get(api);
+    //         setdataset(res.data);
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    // }
+    const fetchDataPredicted = async () =>{
         try {
-            const api = '/api/packet'
+            console.log("==========================>",locationselector.latitude)
+            const api = `/predict/predict?lat=${locationselector.latitude}&long=${locationselector.longitude}`
             // const res = await axiosClient.get<Location[]>(api);
             const res  = await axiosClient.get(api);
+            // console.log("==========================>",res.data.realPredictions )
             setdataset(res.data);
         } catch (error) {
             console.log(error)
@@ -145,9 +161,10 @@ function  Dashboard (){
                 sendLocationToServer(loc.latitude.toString(), loc.longitude.toString());
                 const address = await getAddressFromCoordinates_OSM(loc.latitude.toString(), loc.longitude.toString());
                 setaddress(address)
-
+                
             }
         })();
+        // fetchDataPredicted();
         return ()=> {
             closeSocket();
         };
@@ -182,7 +199,14 @@ function  Dashboard (){
                         </Row>
                             
                         <TouchableOpacity style={styles.boxContainer} 
-                        onPress={()=>navigation.navigate("DataDetailScreen")}>
+                        onPress={()=>{
+                        // navigation.navigate("DataDetailScreen",{sensorData})
+                        if (sensorData && address) {
+                            navigation.navigate("DataDetailScreen", { sensorData, location:address });
+                          } else {
+                            console.error("SensorData is null");
+                          }
+                        }}>
                             {/* <View style={styles.boxContainer}> */}
                                 <Image source={require('../../../../assets/images/sun.png')} style={styles.iconSun}/>
                                 <Row direction="column" start>
