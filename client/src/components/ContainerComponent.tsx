@@ -28,6 +28,8 @@ const ContainerComponent = (props: Props) => {
                     minWidth: 48,
                     minHeight: 48,
                     justifyContent: 'flex-start',
+                    flex: 1,
+                    backgroundColor:'blue'
                 }}>
                     {back && (
                         <TouchableOpacity

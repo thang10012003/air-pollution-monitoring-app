@@ -2,7 +2,7 @@ import { AntDesign, FontAwesome, Foundation } from "@expo/vector-icons";
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { Alert, Image, Linking, ScrollView, StyleSheet, View } from "react-native";
+import { Alert, Image, Linking, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Avatar from "../../../components/Avatar";
 import CircleComponent from '../../../components/CircleComponent';
@@ -26,6 +26,8 @@ import HalfCircleProgress from "./Components/HalfCircleProgress";
 // import SemiCircleProgress from "./Components/HalfCircleProgress";
 import ForecastDate from "./Components/DateListComponent";
 import { Validate } from "../../../utils/validation";
+import { useNavigation } from "@react-navigation/native";
+import DataDetail from "./DataDetail";
 interface SensorData {
     CO: string;
     airQuality: string;
@@ -44,6 +46,7 @@ interface location{
     city: string,
 }
 function  Dashboard (){
+    const navigation = useNavigation();
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [sensorData, setSensorData] = useState<SensorData|null>(null)
@@ -177,26 +180,30 @@ function  Dashboard (){
                                 </View>
                             </CircleComponent>
                         </Row>
-                        <View style={styles.boxContainer}>
-                            <Image source={require('../../../../assets/images/sun.png')} style={styles.iconSun}/>
-                            <Row direction="column" start>
-                                {/* <TextDefault style={styles.text}>Quận 7, TP.HCM</TextDefault> */}
-                                <TextDefault style={styles.text}>{address?.district}</TextDefault>
-                                <TextDefault style={styles.text}>{address?.city}</TextDefault>
-                                <Row evenly>
-                                    <TextDefault bold style={styles.text}>{dateTransfer.getTime(sensorData?.time)}</TextDefault>
-                                    <View style={styles.number}>
-                                        <Image style={styles.icon} source={require('../../../../assets/images/temperature.png')}/>
-                                        {<TextDefault style={styles.text}>{sensorData?.temperature} °C</TextDefault>}
-                                    </View>
-                                    <View style={styles.number}>
-                                        <Image style={styles.icon} source={require('../../../../assets/images/humidity.png')}/>
-                                        <TextDefault style={styles.text}>{sensorData?.humidity}%</TextDefault>
-                                    </View>
+                            
+                        <TouchableOpacity style={styles.boxContainer} 
+                        onPress={()=>navigation.navigate("DataDetailScreen")}>
+                            {/* <View style={styles.boxContainer}> */}
+                                <Image source={require('../../../../assets/images/sun.png')} style={styles.iconSun}/>
+                                <Row direction="column" start>
+                                    {/* <TextDefault style={styles.text}>Quận 7, TP.HCM</TextDefault> */}
+                                    <TextDefault style={styles.text}>{address?.district}</TextDefault>
+                                    <TextDefault style={styles.text}>{address?.city}</TextDefault>
+                                    <Row evenly>
+                                        <TextDefault bold style={styles.text}>{dateTransfer.getTime(sensorData?.time)}</TextDefault>
+                                        <View style={styles.number}>
+                                            <Image style={styles.icon} source={require('../../../../assets/images/temperature.png')}/>
+                                            {<TextDefault style={styles.text}>{sensorData?.temperature} °C</TextDefault>}
+                                        </View>
+                                        <View style={styles.number}>
+                                            <Image style={styles.icon} source={require('../../../../assets/images/humidity.png')}/>
+                                            <TextDefault style={styles.text}>{sensorData?.humidity}%</TextDefault>
+                                        </View>
+                                    </Row>
                                 </Row>
-                            </Row>
-                            <Image source={require('../../../../assets/images/cloud.png')} style={styles.cloud}/>
-                        </View>
+                                <Image source={require('../../../../assets/images/cloud.png')} style={styles.cloud}/>
+                            {/* </View> */}
+                        </TouchableOpacity>
                     </Row>
                 </LinearGradient>
                 <View style={styles.body}>

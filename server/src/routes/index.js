@@ -10,7 +10,7 @@ const typeRouter = require('./sensorType.route');
 const locationRouter = require('./location.route');
 
 const packetDataRouter = require('./packetData.route');
-
+const predictRouter = require('./predict.route')
 
 const authRouter = require('./auth.route')
 
@@ -22,6 +22,7 @@ router.use('/api/sensors', sensorRouter);
 router.use('/api/packet', packetDataRouter);
 router.use('/api/location', locationRouter);
 router.use('/auth', authRouter)
+router.use('/predict',predictRouter)
 
 
 
