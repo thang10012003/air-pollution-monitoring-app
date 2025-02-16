@@ -4,7 +4,13 @@ import { ContainerComponent } from '../../../../components';
 import TextDefault from '../../../../components/TextDefault';
 import Colors from '../../../../constants/Colors'
 import Row from '../../../../components/Row';
-const DateList = () => {
+
+
+interface DateListProps {
+  onDateSelect: (date: string) => void;
+}
+
+const DateList = ({onDateSelect}:DateListProps) => {
   const currentDate = new Date();
   const formatDate = (date: Date): string => {
     const daysOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
@@ -14,6 +20,15 @@ const DateList = () => {
     const year = date.getFullYear(); // Lấy năm
   
     return `${dayOfWeek}, ${day} tháng ${month}, ${year}`;
+  };
+  const formatDateInYear = (date: Date): string => {
+    const daysOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+    const dayOfWeek = daysOfWeek[date.getDay()]; // Lấy thứ trong tuần
+    const day = String(date.getDate()).padStart(2, '0'); // Định dạng ngày thành 2 chữ số
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Định dạng tháng thành 2 chữ số
+    const year = date.getFullYear(); // Lấy năm
+  
+    return `${year}-${month}-${day}`;
   };
   const [dateChosen, setdateChosen] = useState(formatDate(currentDate))
   const getDaysInMonth = () => {
@@ -40,6 +55,7 @@ const DateList = () => {
     const month = currentDate.getMonth();
     const newDate = new Date(year, month, day); // Tạo đối tượng Date mới
     setdateChosen(formatDate(newDate)); // Cập nhật định dạng ngày được chọn
+    return formatDateInYear(newDate)
   };
   const numDate = getDaysInMonth();
   return (
@@ -58,7 +74,10 @@ const DateList = () => {
                 key={day}
                 style={styles.itemContainer}>
                   <TouchableOpacity
-                  onPress={()=> handleDateChange(day)}>
+                  onPress={()=> {
+                    const formattedDate = handleDateChange(day)
+                    onDateSelect(formattedDate)
+                  }}>
                     <View style={styles.textContainer}>
                       <TextDefault color={Colors.light.text}>{day}</TextDefault>
                     </View>

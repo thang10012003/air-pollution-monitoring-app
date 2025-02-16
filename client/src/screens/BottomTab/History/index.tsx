@@ -12,9 +12,20 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const screenWidth = Dimensions.get("window").width;
 
 const History = () => {
-    const [date, setdate] = useState("");
-    const handleGetDate = (date: string) =>{
-        setdate(date)
+    const formatDateInYear = (date: Date): string => {
+        const daysOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+        const dayOfWeek = daysOfWeek[date.getDay()]; // Lấy thứ trong tuần
+        const day = String(date.getDate()).padStart(2, '0'); // Định dạng ngày thành 2 chữ số
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Định dạng tháng thành 2 chữ số
+        const year = date.getFullYear(); // Lấy năm
+      
+        return `${year}-${month}-${day}`;
+      };
+    const [date, setdate] = useState(formatDateInYear(new Date()));
+
+    const handleGetDate = (dateChosen: string) =>{
+        setdate(dateChosen)
+        console.log("ngay lay duoc", date)
     }
     useEffect(() => {
         const getPacketId = async () => {
@@ -66,7 +77,7 @@ const History = () => {
     return (
         <ScrollView contentContainerStyle={styles.container}>
             {/* <ScrollView   style={{flex: 1, backgroundColor: 'blue'}}> */}
-                <DateList />
+                <DateList onDateSelect={handleGetDate}/>
                 <TextDefault bold size={24} color={Colors.light.text}>Chất lượng không khí</TextDefault>
                 <SpaceComponent width={screenWidth} height={20} />
                 
