@@ -4,13 +4,29 @@ import Colors from '../../../constants/Colors';
 import { Dimensions } from "react-native";
 import { SpaceComponent } from "../../../components";
 import TextDefault from "../../../components/TextDefault";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DateList from "./Components/DateList";
 import TemperatureHistoryChart from "./Components/TemperatureHistoryChart ";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const screenWidth = Dimensions.get("window").width;
- 
+
 const History = () => {
+    const [date, setdate] = useState("");
+    const handleGetDate = (date: string) =>{
+        setdate(date)
+    }
+    useEffect(() => {
+        const getPacketId = async () => {
+            const id = await AsyncStorage.getItem("packetId");
+            if (id) {
+                console.log("Lấy dữ liệu từ packet có ID:", id);
+                
+            }
+        };
+    
+        getPacketId();
+    },[])
     const data = {
         labels: ["January", "February", "March", "April", "May", "June"],
         datasets: [

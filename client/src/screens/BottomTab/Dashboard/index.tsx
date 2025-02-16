@@ -52,7 +52,6 @@ type DashboardNavigationProp = NativeStackNavigationProp<RootStackParamList, "Da
 function  Dashboard (){
     const navigation = useNavigation<DashboardNavigationProp>();
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
     const [sensorData, setSensorData] = useState<SensorData|null>(null)
     const dispatch = useDispatch();
     const authselector = useSelector(authSelector);
@@ -60,6 +59,9 @@ function  Dashboard (){
     const [dataset, setdataset] = useState()
     const [location, setLocation] = useState({})
     const [address, setaddress] = useState<location|null>(null)
+    const [COpredicted, setCOpredicted] = useState([])
+    const [CO2predicted, setCO2predicted] = useState([])
+    const [Dustpredicted, setDustpredicted] = useState([])
     const descriptions: { [key: string]: string } = {
         "good": "Tốt",
         "Moderate": "Trung bình",
@@ -79,24 +81,32 @@ function  Dashboard (){
         "Hazardous": 4
     };
 
-    // const fetchData = async () =>{
-    //     try {
-    //         const api = '/api/packet'
-    //         // const res = await axiosClient.get<Location[]>(api);
-    //         const res  = await axiosClient.get(api);
-    //         setdataset(res.data);
-    //     } catch (error) {
-    //         console.log(error)
-    //     }
-    // }
+    const fetchData = async () =>{
+        try {
+            const api = '/api/packet'
+            // const res = await axiosClient.get<Location[]>(api);
+            const res  = await axiosClient.get(api);
+            setdataset(res.data);
+        } catch (error) {
+            console.log(error)
+        }
+    }
     const fetchDataPredicted = async () =>{
         try {
             console.log("==========================>",locationselector.latitude)
             const api = `/predict/predict?lat=${locationselector.latitude}&long=${locationselector.longitude}`
             // const res = await axiosClient.get<Location[]>(api);
-            const res  = await axiosClient.get(api);
-            // console.log("==========================>",res.data.realPredictions )
-            setdataset(res.data);
+            const res  = await axiosClient.get(api);      
+            const data = res.data
+            // Trích xuất cột 0 (nhiệt độ)
+            const CO = data.realPredictions.map((row: number[]) => row[0]);
+            const CO2 = data.realPredictions.map((row: number[]) => row[1]);
+            const Dust = data.realPredictions.map((row: number[]) => row[2]);
+            setCOpredicted(CO)
+            setCO2predicted(CO2)
+            setDustpredicted(Dust)
+            
+            // setdataset(res.data);
         } catch (error) {
             console.log(error)
         }
@@ -149,9 +159,12 @@ function  Dashboard (){
     useEffect(() => {
         initSocket();
         // Lắng nghe dữ liệu cảm biến liên tục
-        listenToSensorData((data) => {
+        listenToSensorData(async(data) => {
             console.log("Data server gửi về :", data)
             setSensorData(data); // Cập nhật dữ liệu khi có thông tin mới
+            if (data.id) {
+                await AsyncStorage.setItem("packetId", data.id);
+            }
         },authselector.email);
         (async() => {
             const loc = await requestLocationPermission();

@@ -9,6 +9,7 @@ import { authSelector, removeAuth } from "../../../redux/reducers/authReducer"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import React from "react"
 import { locationSelector,removeLocation } from "../../../redux/reducers/locationReducer"
+import SettingComponent from "./Components/SettingComponent"
 
 const  Setting = () =>{
     const url='https://vnn-imgs-a1.vgcloud.vn/image1.ictnews.vn/_Files/2020/03/17/trend-avatar-1.jpg'
@@ -22,7 +23,9 @@ const  Setting = () =>{
             </View>
             <View style = {styles.body}> 
                 <Image source={{ uri: url }} style={styles.avatar} />
-                <View style={{flex: 1}}></View>
+                <View style={{flex: 1, backgroundColor:'yellow', width: '100%'}}>
+                    <SettingComponent text="Chế độ xem" height={50}></SettingComponent>
+                </View>
                 <ButtonComponent 
                     text="Đăng xuất"
                     type="primary"

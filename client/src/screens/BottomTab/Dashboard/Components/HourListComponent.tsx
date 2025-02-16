@@ -4,11 +4,12 @@ import Colors from "../../../../constants/Colors";
 import TextDefault from "../../../../components/TextDefault";
 
 // Hàm tạo danh sách giờ và giá trị dự đoán ngẫu nhiên
+// const generateHourlyData = (data : number[]) => {
 const generateHourlyData = () => {
     const now = new Date();
     const hours = [];
   
-    for (let i = 0; i < 7; i++) { // Lấy 7 mốc giờ tiếp theo
+    for (let i = 0; i < 10; i++) { // Lấy 7 mốc giờ tiếp theo
       const hour = new Date(now);
       hour.setHours(now.getHours() + i, 0, 0, 0); // Đặt phút, giây, mili giây về 0
   
@@ -17,6 +18,7 @@ const generateHourlyData = () => {
       hours.push({
         time: timeString,
         value: Math.floor(Math.random() * 101), // Dự đoán giá trị từ 0-100
+        // value: data[i]?.toFixed(1) ||  Math.floor(Math.random() * 101)
       });
     }
     // console.log(hours)
@@ -30,7 +32,9 @@ const getBackgroundColor = (value: number) => {
   return "#F44336"; // Đỏ
 };
 
+// const HourlyForecast = (data:number[]) => {
 const HourlyForecast = () => {
+  // const [hourlyData, setHourlyData] = useState(generateHourlyData(data));
   const [hourlyData, setHourlyData] = useState(generateHourlyData());
 
   // Giả lập cập nhật dự đoán mỗi 30 giây
