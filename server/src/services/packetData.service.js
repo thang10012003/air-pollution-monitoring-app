@@ -1,6 +1,7 @@
 const PacketData = require("../models/packetDataModel.js");
 const HourlyData = require("../models/hourlyDataModel.js");
 const Location = require("../models/locationModel.js");
+const { addHistoryRecord } = require("../models/historyModel.js");
 
 
 const calculateEvaluate = (dataset) => {
@@ -154,6 +155,17 @@ const createOrUpdatePacketData = async (location, dataset) => {
     }
 
     await hourlyData.save();
+
+     // ✅ Lưu giá trị gốc vào historyModel
+     const latestValues = Object.fromEntries(packetData.dataset.map(sensor => [sensor.dataType, sensor.dataValue]));
+
+     await addHistoryRecord(packetId, {
+         co2: latestValues["AIR_QUALITY"] ?? 0,
+         co: latestValues["CO"] ?? 0,
+         dust: latestValues["DUST"] ?? 0,
+         temperature: latestValues["TEMPERATURE"] ?? 0,
+         humidity: latestValues["HUMIDITY"] ?? 0
+     });
 };
 
 

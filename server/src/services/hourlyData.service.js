@@ -1,4 +1,4 @@
-const HourlyDataModel = require("../models/HourlyData");
+const HourlyDataModel = require("../models/hourlyDataModel");
 
 class HourlyDataService {
     // Tạo dữ liệu mới
@@ -19,7 +19,20 @@ class HourlyDataService {
             throw new Error("Error fetching hourly data: " + error.message);
         }
     }
-
+    static async getHourlyDataByPacketIdAndDate(packetId, date) {
+        try {
+            const result = await HourlyDataModel.findOne({
+                packetId,
+                "dates.date": new Date(date) // So sánh ngày chính xác
+            },
+            {
+                "dates.$": 1 
+            });
+            return result;
+        } catch (error) {
+            throw new Error("Error fetching hourly data by date: " + error.message);
+        }
+    }
     // Cập nhật dữ liệu theo packetId và ngày
     static async updateHourlyData(packetId, date, newTimeSeries) {
         try {
