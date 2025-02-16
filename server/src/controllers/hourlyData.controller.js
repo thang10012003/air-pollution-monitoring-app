@@ -32,9 +32,10 @@ class HourlyDataController {
 
             return res.status(200).json({
                 message: "Get data successfully.",
-                data:({
-                    data
-                })})
+                // data:({
+                //     data
+                // })})
+                data})
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
