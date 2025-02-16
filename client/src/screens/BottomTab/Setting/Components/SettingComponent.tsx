@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import React, { ReactNode } from 'react'
-
+import Colors from '../../../../constants/Colors'
 interface Props {
     icon?: ReactNode;
     text: string;
@@ -34,14 +34,19 @@ const SettingComponent = (props: Props) => {
             ]} 
             // onPress={}
         >
-            <Text>{text}</Text>
+            <Text style={{fontSize: 18}}>{text}</Text>
         </TouchableOpacity>
     )
 }
 const styles = StyleSheet.create({
     container:{
         width: '100%',
-        backgroundColor:'blue'
+        // backgroundColor:'blue',
+        // alignItems:'center',
+        justifyContent:'center',
+        borderWidth: 0.5,
+        borderColor: Colors.light.greyBlack
+        
     },
 })
 export default SettingComponent

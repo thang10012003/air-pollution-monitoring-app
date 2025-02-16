@@ -3,22 +3,31 @@ import { View, Text, StyleSheet, ScrollView } from "react-native";
 import Colors from "../../../../constants/Colors";
 import TextDefault from "../../../../components/TextDefault";
 
+interface HourlyForecastProps {
+  data: number[];
+}
 // Hàm tạo danh sách giờ và giá trị dự đoán ngẫu nhiên
 // const generateHourlyData = (data : number[]) => {
-const generateHourlyData = () => {
+const generateHourlyData = ({data} : HourlyForecastProps) => {
     const now = new Date();
     const hours = [];
-  
+    const lastValue = data.length > 0 ? data[data.length - 1] : 0; // Giá trị dự phòng
+
     for (let i = 0; i < 10; i++) { // Lấy 7 mốc giờ tiếp theo
       const hour = new Date(now);
       hour.setHours(now.getHours() + i, 0, 0, 0); // Đặt phút, giây, mili giây về 0
   
       const timeString = i === 0 ? "Bây giờ" : hour.getHours().toString().padStart(2, "0") + ":00"; // Lấy giờ tròn (12, 13,...)
   
+      // hours.push({
+      //   time: timeString,
+      //   // value: Math.floor(Math.random() * 101), // Dự đoán giá trị từ 0-100
+      //   value: data[i] // Dự đoán giá trị từ 0-100
+      //   // value: data[i]?.toFixed(1) ||  Math.floor(Math.random() * 101)
+      // });
       hours.push({
         time: timeString,
-        value: Math.floor(Math.random() * 101), // Dự đoán giá trị từ 0-100
-        // value: data[i]?.toFixed(1) ||  Math.floor(Math.random() * 101)
+        value: data[i] !== undefined ? Math.round(data[i]) : lastValue, // Nếu thiếu thì dùng phần tử cuối
       });
     }
     // console.log(hours)
@@ -33,18 +42,21 @@ const getBackgroundColor = (value: number) => {
 };
 
 // const HourlyForecast = (data:number[]) => {
-const HourlyForecast = () => {
+const HourlyForecast = ({data}: HourlyForecastProps) => {
   // const [hourlyData, setHourlyData] = useState(generateHourlyData(data));
-  const [hourlyData, setHourlyData] = useState(generateHourlyData());
+  const [hourlyData, setHourlyData] = useState(generateHourlyData({data}));
+  useEffect(() => {
+    setHourlyData(generateHourlyData({ data }));
+  }, [data]); // Cập nhật khi data thay đổi
 
   // Giả lập cập nhật dự đoán mỗi 30 giây
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setHourlyData(generateHourlyData());
-    }, 30000);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setHourlyData(generateHourlyData(data));
+  //   }, 30000);
 
-    return () => clearInterval(interval);
-  }, []);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   return (
     <View style={styles.container}>

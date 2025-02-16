@@ -30,6 +30,7 @@ import { useNavigation } from "@react-navigation/native";
 import DataDetail from "./DataDetail";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/BottomTabNavigator/DashboardNavigator";
+import AQIForecast from "./Components/ForecastComponent";
 interface SensorData {
     CO: string;
     airQuality: string;
@@ -61,7 +62,7 @@ function  Dashboard (){
     const [address, setaddress] = useState<location|null>(null)
     const [COpredicted, setCOpredicted] = useState([])
     const [CO2predicted, setCO2predicted] = useState([])
-    const [Dustpredicted, setDustpredicted] = useState([])
+    const [Dustpredicted, setDustpredicted] = useState<number[]>([])
     const descriptions: { [key: string]: string } = {
         "good": "Tốt",
         "Moderate": "Trung bình",
@@ -81,31 +82,27 @@ function  Dashboard (){
         "Hazardous": 4
     };
 
-    const fetchData = async () =>{
-        try {
-            const api = '/api/packet'
-            // const res = await axiosClient.get<Location[]>(api);
-            const res  = await axiosClient.get(api);
-            setdataset(res.data);
-        } catch (error) {
-            console.log(error)
-        }
-    }
     const fetchDataPredicted = async () =>{
         try {
-            console.log("==========================>",locationselector.latitude)
-            const api = `/predict/predict?lat=${locationselector.latitude}&long=${locationselector.longitude}`
+            if (!sensorData?.id) {
+                console.log("sensorData.id không tồn tại");
+                return;
+            }
+            const api = `api/history/${sensorData?.id}`
             // const res = await axiosClient.get<Location[]>(api);
             const res  = await axiosClient.get(api);      
             const data = res.data
+            if (!data?.realPredictions || !Array.isArray(data.realPredictions)) {
+                console.error("Dữ liệu không hợp lệ hoặc không có realPredictions");
+                return;
+            }
             // Trích xuất cột 0 (nhiệt độ)
-            const CO = data.realPredictions.map((row: number[]) => row[0]);
-            const CO2 = data.realPredictions.map((row: number[]) => row[1]);
-            const Dust = data.realPredictions.map((row: number[]) => row[2]);
+            const CO = data.realPredictions.map((row: number[]) => row[0] ?? null);
+            const CO2 = data.realPredictions.map((row: number[]) => row[1] ?? null);
+            const Dust = data.realPredictions.map((row: number[]) => row[2] ?? null);
             setCOpredicted(CO)
             setCO2predicted(CO2)
             setDustpredicted(Dust)
-            
             // setdataset(res.data);
         } catch (error) {
             console.log(error)
@@ -171,24 +168,23 @@ function  Dashboard (){
                 sendLocationToServer(loc.latitude.toString(), loc.longitude.toString());
                 const address = await getAddressFromCoordinates_OSM(loc.latitude.toString(), loc.longitude.toString());
                 setaddress(address)
-                
             }
         })();
-        // fetchDataPredicted();
         return ()=> {
             closeSocket();
         };
     },[]);
     // 🌟 Dùng useEffect riêng để lưu packetId khi sensorData thay đổi
     const packetIdRef = useRef<string | null>(null);
-
     useEffect(() => {
         (async () => {
             if (sensorData && sensorData.id && sensorData.id !== packetIdRef.current) {
                 await AsyncStorage.setItem("packetId", sensorData.id);
                 packetIdRef.current = sensorData.id; // Cập nhật ID đã lưu trước đó
             }
+            
         })();
+        fetchDataPredicted()
     }, [sensorData]); // 🔥 Chạy lại khi sensorData thay đổi
     return(
         // <View style = {styles.container}>
@@ -276,19 +272,49 @@ function  Dashboard (){
                         <SuggestionComponent iconType={sensorData?.evalute}/>
                         
                     </View>
-                    <View style={styles.box}>
-                        <View style={[{flexDirection:'row', alignItems:'center'}]}>
-                            <FontAwesome name="hourglass-1" size={32} color={Colors.light.yellow}/>
-                            <TextDefault bold style={[{color: Colors.light.greyBlack, width: 'auto'}]}>Dự đoán theo giờ</TextDefault>
+                    {Dustpredicted && (
+                        <View style={styles.box}>
+                            <View style={[{flexDirection:'row', alignItems:'center'}]}>
+                                <FontAwesome name="hourglass-1" size={32} color={Colors.light.yellow}/>
+                                <TextDefault bold style={[{color: Colors.light.greyBlack, width: 'auto'}]}>Dự đoán theo giờ của bụi PM2.5</TextDefault>
+                            </View>
+                            {/* <View style={{height:1, width:'100%', backgroundColor:Colors.light.text,marginTop:10}}/> */}
+                            <HourListComponent data={Dustpredicted}></HourListComponent>
+
                         </View>
-                        <HourListComponent></HourListComponent>
-                    </View>
+                    )}
+                    {CO2predicted && (
+                        <View style={styles.box}>
+                            <View style={[{flexDirection:'row', alignItems:'center'}]}>
+                                <FontAwesome name="hourglass-1" size={32} color={Colors.light.yellow}/>
+                                <TextDefault bold style={[{color: Colors.light.greyBlack, width: 'auto'}]}>Dự đoán theo giờ của CO2</TextDefault>
+                            </View>
+
+                                <HourListComponent data={CO2predicted}></HourListComponent>
+                        </View>
+                    )}
+                    {COpredicted && (
+                        <View style={styles.box}>
+                            <View style={[{flexDirection:'row', alignItems:'center'}]}>
+                                <FontAwesome name="hourglass-1" size={32} color={Colors.light.yellow}/>
+                                <TextDefault bold style={[{color: Colors.light.greyBlack, width: 'auto'}]}>Dự đoán theo giờ của CO</TextDefault>
+                            </View>
+
+                                <HourListComponent data={COpredicted}></HourListComponent>
+                        </View>
+                    )}
                     <View style={styles.box}>
                         <View style={[{flexDirection:'row', alignItems:'center'}]}>
                             <AntDesign name="calendar" size={32} color={Colors.light.yellow}/>
                             <TextDefault bold style={[{color: Colors.light.greyBlack, width: 'auto'}]}>Dự đoán trong 3 ngày tới</TextDefault>
                         </View>
-
+                        <AQIForecast
+                            data={[
+                                { day: "Hôm nay", aqi: 30 },
+                                { day: "Ngày mai", aqi: 80 },
+                                { day: "Ngày mốt", aqi: 30 },
+                            ]}
+                        />
                     </View>
                 </View>
 
