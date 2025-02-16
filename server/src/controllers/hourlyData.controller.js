@@ -28,7 +28,13 @@ class HourlyDataController {
             const { packetId, date } = req.params;
             const data = await HourlyDataService.getHourlyDataByPacketIdAndDate(packetId, date);
             if (!data) return res.status(404).json({ message: "No data found" });
-            res.json(data);
+            // res.json(data);
+
+            return res.status(200).json({
+                message: "Get data successfully.",
+                data:({
+                    data
+                })})
         } catch (error) {
             res.status(500).json({ error: error.message });
         }

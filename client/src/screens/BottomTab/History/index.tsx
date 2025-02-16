@@ -8,6 +8,7 @@ import React, { useEffect, useState } from "react";
 import DateList from "./Components/DateList";
 import TemperatureHistoryChart from "./Components/TemperatureHistoryChart ";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axiosClient from "../../../apis/axiosClient";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -22,22 +23,41 @@ const History = () => {
         return `${year}-${month}-${day}`;
       };
     const [date, setdate] = useState(formatDateInYear(new Date()));
-
+    const [packetId, setpacketId] = useState('')
     const handleGetDate = (dateChosen: string) =>{
         setdate(dateChosen)
         console.log("ngay lay duoc", date)
     }
+
+    const fetchData = async () => {
+        try {
+          const url = `https://air-pollution-monitoring-app.onrender.com/api/hourly/${packetId}/${date}`;
+          console.log("📡 Fetching:", url);
+    
+          const response = await axiosClient.get(url);
+          console.log("✅ API Response:", response.data);
+        } catch (error) {
+          console.error("❌ Error fetching data:", error);
+        }
+      };
     useEffect(() => {
         const getPacketId = async () => {
             const id = await AsyncStorage.getItem("packetId");
             if (id) {
                 console.log("Lấy dữ liệu từ packet có ID:", id);
-                
+                setpacketId(id);
             }
         };
     
         getPacketId();
     },[])
+      // Gọi API mỗi khi date thay đổi
+    useEffect(() => {
+        if (packetId) {
+        fetchData();
+        }
+    }, [date, packetId]);
+
     const data = {
         labels: ["January", "February", "March", "April", "May", "June"],
         datasets: [
