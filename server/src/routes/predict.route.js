@@ -13,7 +13,7 @@ function generateSampleData() {
             co2: Math.random() * (600 - 400) + 400,   // Giá trị ngẫu nhiên từ 400-600 ppm
             co: Math.random() * (10 - 1) + 1,         // Giá trị ngẫu nhiên từ 1-10 ppm
             dust: Math.random() * (50 - 10) + 10,     // Giá trị ngẫu nhiên từ 10-50 µg/m³
-            temp: Math.random() * (35 - 20) + 20,     // Giá trị ngẫu nhiên từ 20-35°C
+            temperature: Math.random() * (35 - 20) + 20,     // Giá trị ngẫu nhiên từ 20-35°C
             humidity: Math.random() * (80 - 40) + 40, // Giá trị ngẫu nhiên từ 40-80%
             timestamp: new Date(Date.now() - i * 3600000) // Cách nhau 1 giờ
         });

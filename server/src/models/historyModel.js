@@ -1,24 +1,53 @@
 const { default: mongoose } = require("mongoose");
 
 const HistorySchema = new mongoose.Schema({
-    date:[{
-        type: Date,
-        require: true,
-        default: Date.now
-    }],
-    location:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Location",
-        require: true,
+    packetId: {
+        type: String,
+        required: true,
+        ref: "PacketData" 
     },
-    hourlyData:[
+    records: [
         {
-            level: { type: String, required: true }, // Mức độ AQI: "Good", "Moderate", "Unhealthy", v.v.
-            minValue: { type: Number, required: true }, // Giá trị AQI tối thiểu
-            maxValue: { type: Number, required: true }, // Giá trị AQI tối đa
-        },
-    ],
-});
+            co2: { type: Number, required: true },
+            co: { type: Number, required: true },
+            dust: { type: Number, required: true },
+            temperature: { type: Number, required: true },
+            humidity: { type: Number, required: true },
+            timestamp: { type: Date, default: Date.now }
+        }
+    ]
+}, { timestamps: true });
 
 const HistoryModel = mongoose.model("History", HistorySchema);
+
 module.exports = HistoryModel;
+
+async function addHistoryRecord(packetId, data) {
+    try {
+        let history = await HistoryModel.findOne({ packetId });
+
+        if (!history) {
+            history = new HistoryModel({ packetId, records: [] });
+        }
+
+        history.records.push({
+            co2: data.co2,
+            co: data.co,
+            dust: data.dust,
+            temperature: data.temperature,
+            humidity: data.humidity
+        });
+
+        // Giữ tối đa 20 bản ghi gần nhất
+        if (history.records.length > 20) {
+            history.records.shift();
+        }
+
+        await history.save();
+        console.log("✅ Đã cập nhật lịch sử thành công.");
+    } catch (error) {
+        console.error("❌ Lỗi khi cập nhật lịch sử:", error);
+    }
+}
+
+module.exports.addHistoryRecord = addHistoryRecord;

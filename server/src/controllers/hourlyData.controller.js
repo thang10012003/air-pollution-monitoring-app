@@ -23,7 +23,16 @@ class HourlyDataController {
             res.status(500).json({ error: error.message });
         }
     }
-
+    static async getHourlyDataByPacketIdAndDate(req, res) {
+        try {
+            const { packetId, date } = req.params;
+            const data = await HourlyDataService.getHourlyDataByPacketIdAndDate(packetId, date);
+            if (!data) return res.status(404).json({ message: "No data found" });
+            res.json(data);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
     // API cập nhật dữ liệu theo packetId và ngày
     static async updateHourlyData(req, res) {
         try {
