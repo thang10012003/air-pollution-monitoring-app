@@ -23,23 +23,36 @@ const History = () => {
         return `${year}-${month}-${day}`;
       };
     const [date, setdate] = useState(formatDateInYear(new Date()));
+    const [error, setError] = useState(false)
     const [packetId, setpacketId] = useState('')
+    const [temperatureDataset, setTemperatureDataset] = useState<{ hour: string; value: number; }[]>([])
+    const [humidDataset, setHumidDataset] = useState<{ hour: string; value: number }[]>([]);
+    const [dustDataset, setDustDataset] = useState<{ hour: string; value: number }[]>([]);   
+    const [CODataset, setCODataset] = useState<{ hour: string; value: number }[]>([]);   
+    const [CO2Dataset, setCO2Dataset] = useState<{ hour: string; value: number }[]>([]);   
     const handleGetDate = (dateChosen: string) =>{
         setdate(dateChosen)
-        console.log("ngay lay duoc", date)
     }
-
-    const fetchData = async () => {
-        try {
-          const url = `https://air-pollution-monitoring-app.onrender.com/api/hourly/${packetId}/${date}`;
-          console.log("📡 Fetching:", url);
-    
-          const response = await axiosClient.get(url);
-          console.log("✅ API Response:", response.data);
-        } catch (error) {
-          console.error("❌ Error fetching data:", error);
-        }
-      };
+    interface TimeSeriesEntry {
+        hour: number;
+        dataset: {
+            temperature: number;
+            humidity: number;
+            CO2: number;
+            CO: number;
+            dust: number;
+        };
+        _id:string
+      }
+      
+      interface ApiResponse {
+        _id: string;
+        dates: {
+            date: string;
+            timeSeries: TimeSeriesEntry[];
+            _id: string;
+        }[];
+      }
     useEffect(() => {
         const getPacketId = async () => {
             const id = await AsyncStorage.getItem("packetId");
@@ -51,57 +64,112 @@ const History = () => {
     
         getPacketId();
     },[])
-      // Gọi API mỗi khi date thay đổi
-    useEffect(() => {
-        if (packetId) {
-        fetchData();
-        }
-    }, [date, packetId]);
+  // ✅ Gọi API mỗi khi `date` hoặc `packetId` thay đổi
+  useEffect(() => {
+    if (!packetId) return; // Chỉ gọi API khi packetId đã được lấy
 
-    const data = {
-        labels: ["January", "February", "March", "April", "May", "June"],
-        datasets: [
-            {
-                data: [20, 45, 28, 80, 99, 43],
-                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                strokeWidth: 3,
-            },
-        ],
-        legend: ["AQI"],
+    const fetchData = async () => {
+      try {
+        const api = `/api/hourly/${packetId}/${date}`;
+        console.log("🔍 Gọi API:", api);
+        const response = await axiosClient.get(api);
+        console.log("✅ API Response:", response.data);
+        // setData(response.data);
+        setError(false)
+
+
+        // Xử lý dữ liệu nhiệt độ
+        const processTemperatureData = (apiResponse:ApiResponse, key: "temperature" | "humidity" | "dust" | "CO" | "CO2") => {
+            if (!apiResponse?.dates?.length) {
+            return [];
+            }
+            return apiResponse.dates[0].timeSeries.map((entry) => ({
+                hour: `${entry.hour.toString().padStart(2, "0")}:00`, // Format giờ thành "HH:00"
+                value: Math.round(entry.dataset[key] * 10) / 10, // Làm tròn 1 chữ số thập phân
+            }));
+        };
+
+        const tempData = processTemperatureData(response.data,"temperature");
+        const humidData = processTemperatureData(response.data,"humidity");
+        const dustData = processTemperatureData(response.data,"dust");
+        const COData = processTemperatureData(response.data,"CO");
+        const CO2Data = processTemperatureData(response.data,"CO2");
+        
+        console.log("Tempdata: ",tempData);
+        
+        setTemperatureDataset(tempData); // Cập nhật state
+        setHumidDataset(humidData)
+        setCODataset(COData)
+        setCO2Dataset(CO2Data)
+        setDustDataset(dustData)
+
+        } catch (error:any) {
+            if (error.response?.status === 404) {
+                console.warn("⚠️ Không có dữ liệu cho ngày này.");
+                // setData(null);
+                // setError("Không có dữ liệu cho ngày này.");
+            } else {
+                // console.error("❌ Lỗi khi gọi API:", error.response ? error.response.data : error.message);
+                setError(true);
+            }      
+        }
     };
+
+    fetchData();
+  }, [date, packetId]);
+
 
     const temperatureData = [
-        { hour: "00:00", temp: 24.5 },
-        { hour: "03:00", temp: 23.8 },
-        { hour: "06:00", temp: 22.1 },
-        { hour: "09:00", temp: 25.6 },
-        { hour: "12:00", temp: 28.3 },
-        { hour: "15:00", temp: 30.2 },
-        { hour: "18:00", temp: 27.4 },
-        { hour: "21:00", temp: 25.0 },
+        { hour: "00:00", value: 24.5 },
+        { hour: "03:00", value: 23.8 },
+        { hour: "06:00", value: 22.1 },
+        { hour: "09:00", value: 25.6 },
+        { hour: "12:00", value: 28.3 },
+        { hour: "15:00", value: 30.2 },
+        { hour: "18:00", value: 27.4 },
+        { hour: "21:00", value: 25.0 },
     ];
     
-    const chartConfig = {
-        backgroundGradientFrom: "white",
-        backgroundGradientFromOpacity: 0.5,
-        backgroundGradientTo: "white",
-        backgroundGradientToOpacity: 0.5,
-        color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-        strokeWidth: 2,
-        barPercentage: 0.5,
-        fillShadowGradientFrom: "#092F36",
-        fillShadowGradientTo: "#C0E9F1",
-        fillShadowGradientFromOpacity: 1,
-    };
+    // const chartConfig = {
+    //     backgroundGradientFrom: "white",
+    //     backgroundGradientFromOpacity: 0.5,
+    //     backgroundGradientTo: "white",
+    //     backgroundGradientToOpacity: 0.5,
+    //     color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    //     strokeWidth: 2,
+    //     barPercentage: 0.5,
+    //     fillShadowGradientFrom: "#092F36",
+    //     fillShadowGradientTo: "#C0E9F1",
+    //     fillShadowGradientFromOpacity: 1,
+    // };
 
     return (
+        <View style={{flex:1, backgroundColor:Colors.light.background}}>
         <ScrollView contentContainerStyle={styles.container}>
             {/* <ScrollView   style={{flex: 1, backgroundColor: 'blue'}}> */}
                 <DateList onDateSelect={handleGetDate}/>
+                <SpaceComponent width={screenWidth} height={20} />
+                <View style={{ height: 1, backgroundColor: Colors.light.text, width:'100%', marginVertical: 10 }} />
                 <TextDefault bold size={24} color={Colors.light.text}>Chất lượng không khí</TextDefault>
                 <SpaceComponent width={screenWidth} height={20} />
-                
-                {/* Biểu đồ AQI */}
+                {error && (
+                    <TextDefault color="red" size={20} style={{ textAlign: "center" }}>
+                        Không có dữ liệu để hiển thị
+                    </TextDefault>
+                )}
+
+                {/* Chỉ hiển thị biểu đồ nếu không có lỗi */}
+                {!error && temperatureDataset.length > 0 &&(
+                    <>
+                        {/* Biểu đồ nhiệt độ */}
+                        <TemperatureHistoryChart data={temperatureDataset} title="Nhiệt độ" gradientColors={["#1E2923","#3b8d99","#6b6b83"]} unitData="°C"/>
+                        <TemperatureHistoryChart data={humidDataset} title="Độ ẩm" gradientColors={["#1E3C72", "#2A5298", "#F2994A"]}/>
+                        <TemperatureHistoryChart data={dustDataset} title="Bụi PM2.5" gradientColors={["#A8E063", "#56AB2F", "#004E92"]}/>
+                        <TemperatureHistoryChart data={CO2Dataset} title="CO2" gradientColors={["#56CCF2", "#2F80ED", "#1B1F3B"]}/>
+                        <TemperatureHistoryChart data={CODataset} title="CO" gradientColors={["#FF7E5F", "#FEB47B", "#D16BA5"]}/>
+                    </>
+                )}
+                {/* Biểu đồ AQI
                 <LineChart
                     data={data}
                     width={screenWidth - 40}
@@ -114,9 +182,9 @@ const History = () => {
                         padding: 10,            
                     }}
                 />
-                <TemperatureHistoryChart data={temperatureData}></TemperatureHistoryChart>
+                <TemperatureHistoryChart data={temperatureData}></TemperatureHistoryChart> */}
             </ScrollView>
-        // </View>
+         </View>
     );
 };
 
@@ -129,6 +197,6 @@ const styles = StyleSheet.create({
         // flex: 1,
         backgroundColor: Colors.light.background,
         paddingHorizontal: 20,
-        paddingTop: 100,
+        paddingTop: 80,
     },
 });

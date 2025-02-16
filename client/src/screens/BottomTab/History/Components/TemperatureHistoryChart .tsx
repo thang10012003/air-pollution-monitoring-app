@@ -2,25 +2,35 @@ import React from "react";
 import { View, Text, Dimensions, StyleSheet } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 
-const TemperatureHistoryChart = ({ data }: { data: { hour: string; temp: number }[] }) => {
+interface ChartProps {
+  data: { hour: string; value: number }[];
+  title: string;
+  gradientColors: [string, string, string]; // Mảng chứa 3 màu gradient
+  unitData?: string
+}
+// const TemperatureHistoryChart = ({ data }: { data: { hour: string; value: number }[] }) => {
+const TemperatureHistoryChart = ({ data, title, gradientColors, unitData }:ChartProps) => {
   const screenWidth = Dimensions.get("window").width;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Lịch sử Nhiệt độ theo giờ</Text>
+      <Text style={styles.title}>Lịch sử {title} theo giờ</Text>
       <LineChart
         data={{
           labels: data.map((item) => item.hour),
-          datasets: [{ data: data.map((item) => item.temp) }],
+          datasets: [{ data: data.map((item) => item.value) }],
         }}
         width={screenWidth - 40} // Kích thước biểu đồ
         height={220}
-        yAxisSuffix="°C"
+        yAxisSuffix={unitData}
         yAxisInterval={1} // Số bước trục Y
         chartConfig={{
-          backgroundColor: "#1E2923",
-          backgroundGradientFrom: "#3b8d99",
-          backgroundGradientTo: "#6b6b83",
+          // backgroundColor: "#1E2923",
+          // backgroundGradientFrom: "#3b8d99",
+          // backgroundGradientTo: "#6b6b83",
+          backgroundColor: gradientColors[0],
+          backgroundGradientFrom: gradientColors[1],
+          backgroundGradientTo: gradientColors[2],
           decimalPlaces: 1,
           color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
           labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,

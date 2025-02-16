@@ -1,7 +1,7 @@
 import { AntDesign, FontAwesome, Foundation } from "@expo/vector-icons";
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Alert, Image, Linking, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Avatar from "../../../components/Avatar";
@@ -159,12 +159,9 @@ function  Dashboard (){
     useEffect(() => {
         initSocket();
         // Lắng nghe dữ liệu cảm biến liên tục
-        listenToSensorData(async(data) => {
+        listenToSensorData((data) => {
             console.log("Data server gửi về :", data)
             setSensorData(data); // Cập nhật dữ liệu khi có thông tin mới
-            if (data.id) {
-                await AsyncStorage.setItem("packetId", data.id);
-            }
         },authselector.email);
         (async() => {
             const loc = await requestLocationPermission();
@@ -182,7 +179,17 @@ function  Dashboard (){
             closeSocket();
         };
     },[]);
+    // 🌟 Dùng useEffect riêng để lưu packetId khi sensorData thay đổi
+    const packetIdRef = useRef<string | null>(null);
 
+    useEffect(() => {
+        (async () => {
+            if (sensorData && sensorData.id && sensorData.id !== packetIdRef.current) {
+                await AsyncStorage.setItem("packetId", sensorData.id);
+                packetIdRef.current = sensorData.id; // Cập nhật ID đã lưu trước đó
+            }
+        })();
+    }, [sensorData]); // 🔥 Chạy lại khi sensorData thay đổi
     return(
         // <View style = {styles.container}>
         <ScrollView style = {styles.container}>

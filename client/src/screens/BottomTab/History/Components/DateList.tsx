@@ -57,6 +57,7 @@ const DateList = ({onDateSelect}:DateListProps) => {
     setdateChosen(formatDate(newDate)); // Cập nhật định dạng ngày được chọn
     return formatDateInYear(newDate)
   };
+  const [selectedDate, setSelectedDate] = useState<number | null>(null);
   const numDate = getDaysInMonth();
   return (
     <View style={styles.container}>
@@ -69,6 +70,7 @@ const DateList = ({onDateSelect}:DateListProps) => {
         >
           {numDate.length > 0 && numDate.map((day) => {
             // console.log(day);
+            const isSelected = selectedDate === day; // Kiểm tra ngày được chọn
             return(
               <View 
                 key={day}
@@ -77,9 +79,19 @@ const DateList = ({onDateSelect}:DateListProps) => {
                   onPress={()=> {
                     const formattedDate = handleDateChange(day)
                     onDateSelect(formattedDate)
-                  }}>
-                    <View style={styles.textContainer}>
-                      <TextDefault color={Colors.light.text}>{day}</TextDefault>
+                    setSelectedDate(day); // Cập nhật ngày được chọn
+                  }}
+                  style={[
+                    // styles.textContainer,
+                    // isSelected ? { backgroundColor: "#2C67F2" } : { backgroundColor: "transparent" } // Đổi màu nền
+                  ]}
+                  >
+                    <View 
+                    style={[styles.textContainer,
+                      isSelected ? { backgroundColor: "#2C67F2" } : { backgroundColor: "transparent" } // Đổi màu nền
+                    ]
+                    }>
+                      <TextDefault  style={[isSelected ? { color: Colors.light.textSecond } : { color:Colors.light.text }]}>{day}</TextDefault>
                     </View>
                   </TouchableOpacity>
                   <TextDefault size={16} color={Colors.light.text}>{getDayOfWeek(day)}</TextDefault>
@@ -113,7 +125,7 @@ const styles = StyleSheet.create({
   itemContainer: {
     // backgroundColor:'green',
     justifyContent: 'space-between',
-    alignItems:'center',    
+    alignItems:'center',  
   },
   textContainer: {
     height: 60,
