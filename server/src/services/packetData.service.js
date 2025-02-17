@@ -46,7 +46,7 @@ const createOrUpdatePacketData = async (location, dataset) => {
                 });
             }
         }
-        packetData.evaluate = newSensor.evaluate;
+        packetData.evaluate = calculateEvaluate(packetData.dataset);
     } else {
         packetData = new PacketData({
             location,
@@ -269,7 +269,7 @@ const findNearestPacketData = async (longitude, latitude) => {
             airQuality: nearestPacket.dataset[0].dataValue,
             rain: nearestPacket.dataset[5].dataValue,
             dust: nearestPacket.dataset[4].dataValue,
-            evalute: nearestPacket.evaluate,
+            evaluate: nearestPacket.evaluate,
             time: nearestPacket.dataset[3].timestamp,
         }
         // console.log(newPacket)

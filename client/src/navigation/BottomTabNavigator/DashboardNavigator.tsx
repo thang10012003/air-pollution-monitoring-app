@@ -13,7 +13,7 @@ export type SensorData = {
   rain: string;
   temperature: string;
   dust: string;
-  evalute: string,
+  evaluate: string,
   time: string,
 };
 interface Location{

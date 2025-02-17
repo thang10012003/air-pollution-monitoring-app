@@ -41,7 +41,7 @@ interface SensorData {
     rain: string;
     temperature: string;
     dust: string;
-    evalute: string,
+    evaluate: string,
     time: string,
   }
 interface location{
@@ -259,7 +259,7 @@ function  Dashboard (){
                         <View style={[styles.box, {flex: 2, height: "100%"}]}>
                             <TextDefault style={[{color: Colors.light.greyBlack}]}>Đánh giá chất lượng</TextDefault>
                             <View style={{justifyContent: 'center', alignItems: 'center', paddingTop: 20}}>
-                                <HalfCircleProgress level={level[sensorData?.evalute || 1]}></HalfCircleProgress>
+                                <HalfCircleProgress level={level[sensorData?.evaluate || 1]}></HalfCircleProgress>
                                 {/* <TextDefault bold style={[{color: colors[ sensorData?.evalute|| Colors.light.text], fontSize: 20}]}>{descriptions[ sensorData?.evalute|| "good"]}</TextDefault> */}
                             </View>
                         </View>
@@ -269,7 +269,7 @@ function  Dashboard (){
                             <Foundation name="lightbulb" size={32} color={Colors.light.yellow}/>
                             <TextDefault bold style={[{color: Colors.light.greyBlack, width: 'auto'}]}>Lời khuyên dành cho bạn</TextDefault>
                         </View>
-                        <SuggestionComponent iconType={sensorData?.evalute}/>
+                        <SuggestionComponent iconType={sensorData?.evaluate}/>
                         
                     </View>
                     {Dustpredicted && Dustpredicted.length > 0 &&(
