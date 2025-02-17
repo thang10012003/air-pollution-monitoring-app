@@ -14,7 +14,7 @@ const {title = "--", value = 0, color = 'blue'} = props;
   return (
     <View style={{ padding: 10}}>
         <Row direction="row" between >
-            <TextDefault size={20} color={Colors.light.text}>{title}</TextDefault>
+            <TextDefault size={20} color={Colors.light.text}>{title && title=='Dust'?"Bụi PM2.5" : title}</TextDefault>
             <TextDefault size={20} color={Colors.light.text}>{value}</TextDefault>
 
         </Row>

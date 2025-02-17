@@ -34,7 +34,7 @@ const DataDetail = ({route} : { route: DataDetailRouteProp }) => {
           <TextDefault bold size={20} color={Colors.light.text}>{address.city},{address.district}</TextDefault>
         </View>
         <View style={style.body}>
-          <HalfCircleProgress level={level[sensorData?.evalute || 1]} size = {200}></HalfCircleProgress>
+          <HalfCircleProgress level={level[sensorData?.evaluate || 1]} size = {200}></HalfCircleProgress>
           <View>
             <Row direction='row' colGap={10}>
             <SimpleLineIcons name="refresh" size={24} color={Colors.light.text} />
