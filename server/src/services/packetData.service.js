@@ -8,15 +8,15 @@ const calculateEvaluate = (dataset) => {
     // Lấy các giá trị cần kiểm tra từ dataset
     const airQuality = dataset.find((data) => data.dataType === "AIR_QUALITY");
     const coLevel = dataset.find((data) => data.dataType === "CO");
-
+    const dust = dataset.find((data)=> data.dataType==="DUST");
     // Đưa ra đánh giá dựa trên các điều kiện
-    if (airQuality && parseFloat(airQuality.dataValue) > 20 && parseFloat(airQuality.dataValue) <= 40) {
+    if (airQuality && parseFloat(airQuality.dataValue) >= 40 || parseFloat(coLevel.dataValue) >= 40 || parseFloat(dust.dataValue) >= 50) {
         return "Moderate";
     }
-    else if(airQuality && parseFloat(airQuality.dataValue) > 40 && parseFloat(airQuality.dataValue) <= 60){
+    else if(airQuality && parseFloat(airQuality.dataValue) >= 50 || parseFloat(coLevel.dataValue) >= 50 || parseFloat(dust.dataValue) >= 70){
         return "Unhealthy";
     }
-    else if(airQuality && parseFloat(airQuality.dataValue) > 60){
+    else if(airQuality && parseFloat(airQuality.dataValue) >= 60 || parseFloat(coLevel.dataValue) >= 60 || parseFloat(dust.dataValue) >= 100){
         return "Hazardous";
     }
     return "Good";
