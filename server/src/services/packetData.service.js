@@ -4,23 +4,23 @@ const Location = require("../models/locationModel.js");
 const { addHistoryRecord } = require("../models/historyModel.js");
 
 
-const calculateEvaluate = (dataset) => {
-    // Lấy các giá trị cần kiểm tra từ dataset
-    const airQuality = dataset.find((data) => data.dataType === "AIR_QUALITY");
-    const coLevel = dataset.find((data) => data.dataType === "CO");
+// const calculateEvaluate = (dataset) => {
+//     // Lấy các giá trị cần kiểm tra từ dataset
+//     const airQuality = dataset.find((data) => data.dataType === "AIR_QUALITY");
+//     const coLevel = dataset.find((data) => data.dataType === "CO");
 
-    // Đưa ra đánh giá dựa trên các điều kiện
-    if (airQuality && parseFloat(airQuality.dataValue) > 20 && parseFloat(airQuality.dataValue) <= 40) {
-        return "Moderate";
-    }
-    else if(airQuality && parseFloat(airQuality.dataValue) > 40 && parseFloat(airQuality.dataValue) <= 60){
-        return "Unhealthy";
-    }
-    else if(airQuality && parseFloat(airQuality.dataValue) > 60){
-        return "Hazardous";
-    }
-    return "Good";
-};
+//     // Đưa ra đánh giá dựa trên các điều kiện
+//     if (airQuality && parseFloat(airQuality.dataValue) > 20 && parseFloat(airQuality.dataValue) <= 40) {
+//         return "Moderate";
+//     }
+//     else if(airQuality && parseFloat(airQuality.dataValue) > 40 && parseFloat(airQuality.dataValue) <= 60){
+//         return "Unhealthy";
+//     }
+//     else if(airQuality && parseFloat(airQuality.dataValue) > 60){
+//         return "Hazardous";
+//     }
+//     return "Good";
+// };
 
 const createOrUpdatePacketData = async (location, dataset) => {
     let packetData = await PacketData.findOne({ location });
@@ -44,7 +44,7 @@ const createOrUpdatePacketData = async (location, dataset) => {
                 });
             }
         }
-        packetData.evaluate = calculateEvaluate(packetData.dataset);
+        packetData.evaluate = newSensor.evaluate;
     } else {
         packetData = new PacketData({
             location,
@@ -53,7 +53,7 @@ const createOrUpdatePacketData = async (location, dataset) => {
                 dataValue: sensor.dataValue,
                 timestamp: new Date(),
             })),
-            evaluate: calculateEvaluate(dataset),
+            evaluate: "Good",
         });
     }
 
