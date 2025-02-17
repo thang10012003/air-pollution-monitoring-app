@@ -69,7 +69,7 @@ export const listenToSensorData = (callback: (data: any) => void,userEmail: stri
     // Đăng ký lắng nghe dữ liệu cảm biến
     socket.on("sensorData", (data) => {
         console.log("📥 Nhận dữ liệu cảm biến mới:", data);
-        if(data.evalute ==="Hazardous"){
+        if(data.evaluate ==="Hazardous"){
           sendEmailAlert(userEmail, "Cảnh báo", "Tình trạng khu vực của bạn đã vượt mức an toàn!!!")
           console.log("gui email den: ",userEmail);
           

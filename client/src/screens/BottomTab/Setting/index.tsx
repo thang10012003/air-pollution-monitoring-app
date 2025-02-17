@@ -3,31 +3,75 @@ import Colors from '../../../constants/Colors'
 import CircleComponent from "../../../components/CircleComponent"
 import Avatar from '../../../components/Avatar'
 import ButtonComponent from "../../../components/ButtonComponent"
-import {Entypo} from '@expo/vector-icons';
+import {Entypo, AntDesign, FontAwesome, MaterialIcons} from '@expo/vector-icons';
 import { useDispatch, useSelector } from "react-redux"
 import { authSelector, removeAuth } from "../../../redux/reducers/authReducer"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import React from "react"
+import React, { useState } from "react"
 import { locationSelector,removeLocation } from "../../../redux/reducers/locationReducer"
 import SettingComponent from "./Components/SettingComponent"
 import { SpaceComponent } from "../../../components"
+import { Validate } from "../../../utils/validation"
+import TextDefault from "../../../components/TextDefault"
 
 const  Setting = () =>{
     const url='https://vnn-imgs-a1.vgcloud.vn/image1.ictnews.vn/_Files/2020/03/17/trend-avatar-1.jpg'
     const dispatch = useDispatch();
     const selector = useSelector(authSelector);
     const locationselector = useSelector(locationSelector);
+    const [username, setusername] = useState(Validate.extractNameFromEmail(selector.email))
     return(
         <View style = {styles.container}>
             <View style={styles.header}>
-                <Text style={styles.text}>Cài đật</Text>
+                <Text style={styles.text}>Cài đặt</Text>
             </View>
             <View style = {styles.body}> 
                 <Image source={{ uri: url }} style={styles.avatar} />
+                <SpaceComponent height={20}></SpaceComponent>
+                <TextDefault size={20} color={Colors.light.text}>{username}</TextDefault>
                 <SpaceComponent height={100}></SpaceComponent>
-                <View style={{flex: 1, backgroundColor:'white', width: '100%'}}>
-                    <SettingComponent text="Chế độ xem" height={50}></SettingComponent>
+                <View style={{
+                    // flex: 1, 
+                    backgroundColor:'white', 
+                    width: '90%', 
+                    justifyContent:'center',
+                    borderWidth: 0.3,
+                    borderColor: Colors.light.greyBlack,
+                    borderRadius:10,
+                    // paddingHorizontal:10,
+
+                    
+                }}>
+                    <SettingComponent 
+                        text="Chỉnh sửa thông tin   " 
+                        height={60}
+                        textSize={20}
+                        iconFlex="left"
+                        icon={<AntDesign name="edit" size={24} color="black" />}
+                    />
+                    <SettingComponent 
+                        text="Chế độ xem" 
+                        height={60}
+                        textSize={20}
+                        iconFlex="left"
+                        icon={<AntDesign name="eye" size={24} color="black" />}
+                    />
+                    <SettingComponent 
+                        text="Thông báo" 
+                        height={60}
+                        textSize={20}
+                        iconFlex="left"
+                        icon={<FontAwesome name="bell" size={24} color="yellow" />}
+                    />
+                    <SettingComponent 
+                        text="Mức cảnh báo" 
+                        height={60}
+                        textSize={20}
+                        iconFlex="left"
+                        icon={<MaterialIcons name="data-thresholding" size={24} color="blue" />}
+                    />
                 </View>
+                <View style={{flex:1}}/>
                 <ButtonComponent 
                     text="Đăng xuất"
                     type="primary"
@@ -58,6 +102,7 @@ const styles = StyleSheet.create({
     container:{
         // justifyContent: 'center',
         // alignItems: 'center',
+        backgroundColor:"white",
         flex: 1,
     },
     header:{
@@ -69,7 +114,7 @@ const styles = StyleSheet.create({
 
     },
     text:{
-        fontSize: 20,
+        fontSize: 30,
         color: Colors.light.text,
         fontWeight: 'bold',
     },
@@ -81,5 +126,6 @@ const styles = StyleSheet.create({
     avatar: {
         height: 100, 
         width: 100,
+        borderRadius:100,
     }
 })
