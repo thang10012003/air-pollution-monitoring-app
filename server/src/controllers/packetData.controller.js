@@ -47,7 +47,7 @@ const getAllPacketData =  async (req, res) =>{
                 airQuality: packet.dataset[0].dataValue,
                 rain: packet.dataset[5].dataValue,
                 dust: packet.dataset[4].dataValue,
-                evalute: packet.evaluate,
+                evaluate: packet.evaluate,
                 time: packet.dataset[3].timestamp,
             })
         );
@@ -111,7 +111,7 @@ const getNearestPacketData = async (req, res) => {
                 airQuality: newPacket.airQuality,
                 rain: newPacket.rain,
                 dust: newPacket.dust,
-                evalute: newPacket.evaluate,
+                evaluate: newPacket.evaluate,
                 time: newPacket.time,
                 // longitude: getLocationById(newPacket.location).longitude,
                 // latitude: getLocationById(newPacket.location).latitude,
@@ -121,7 +121,7 @@ const getNearestPacketData = async (req, res) => {
                 // airQuality: newPacket.dataset[0].dataValue,
                 // rain: newPacket.dataset[5].dataValue,
                 // dust: newPacket.dataset[4].dataValue,
-                // evalute: newPacket.evaluate,
+                // evaluate: newPacket.evaluate,
                 // time: newPacket.dataset[3].timestamp,
 
             }),
