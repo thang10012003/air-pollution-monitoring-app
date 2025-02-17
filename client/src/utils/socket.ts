@@ -1,5 +1,6 @@
 import io, { Socket } from 'socket.io-client';
 import { appInfo } from '../constants/appInfo';
+import axiosClient from '../apis/axiosClient';
 
 // const SOCKET_SERVER = 'https://air-pollution-monitoring-app.onrender.com'; // Thay YOUR_PC_IP bằng địa chỉ IP máy chủ
 const SOCKET_SERVER = appInfo.BASE_URL; // Thay YOUR_PC_IP bằng địa chỉ IP máy chủ
@@ -70,6 +71,8 @@ export const listenToSensorData = (callback: (data: any) => void,userEmail: stri
         console.log("📥 Nhận dữ liệu cảm biến mới:", data);
         if(data.evalute ==="Hazardous"){
           sendEmailAlert(userEmail, "Cảnh báo", "Tình trạng khu vực của bạn đã vượt mức an toàn!!!")
+          console.log("gui email den: ",userEmail);
+          
         }
         callback(data);
     });
@@ -84,19 +87,25 @@ export const closeSocket = () => {
 };
 const sendEmailAlert = async (email: string, name:string, text:string) => {
     try {
-        const response = await fetch(appInfo.BASE_URL+"/api/user", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email,
-                name,
-                text,
-            }),
-        });
+        const api = `/api/user`
+        const res  = await axiosClient.post(api,{
+          email,
+          name,
+          text
+        }); 
+        // const response = await fetch(appInfo.BASE_URL+"/api/user", {
+        //     method: "POST",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //     },
+        //     body: JSON.stringify({
+        //         email,
+        //         name,
+        //         text,
+        //     }),
+        // });
 
-        const result = await response.json();
+        const result = res.data;
         console.log("📧 Kết quả gửi email:", result);
     } catch (error) {
         console.error("❌ Lỗi khi gửi email:", error);

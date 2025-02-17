@@ -47,7 +47,7 @@ const HourlyForecast = ({data}: HourlyForecastProps) => {
   const [hourlyData, setHourlyData] = useState(generateHourlyData({data}));
   useEffect(() => {
     setHourlyData(generateHourlyData({ data }));
-  }, [data]); // Cập nhật khi data thay đổi
+  }, []); // Cập nhật khi data thay đổi
 
   // Giả lập cập nhật dự đoán mỗi 30 giây
   // useEffect(() => {
