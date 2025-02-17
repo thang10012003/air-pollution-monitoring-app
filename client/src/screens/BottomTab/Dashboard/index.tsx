@@ -272,7 +272,7 @@ function  Dashboard (){
                         <SuggestionComponent iconType={sensorData?.evalute}/>
                         
                     </View>
-                    {Dustpredicted && (
+                    {Dustpredicted && Dustpredicted.length > 0 &&(
                         <View style={styles.box}>
                             <View style={[{flexDirection:'row', alignItems:'center'}]}>
                                 <FontAwesome name="hourglass-1" size={32} color={Colors.light.yellow}/>
@@ -283,7 +283,7 @@ function  Dashboard (){
 
                         </View>
                     )}
-                    {CO2predicted && (
+                    {CO2predicted && CO2predicted.length > 0 &&(
                         <View style={styles.box}>
                             <View style={[{flexDirection:'row', alignItems:'center'}]}>
                                 <FontAwesome name="hourglass-1" size={32} color={Colors.light.yellow}/>
@@ -293,7 +293,7 @@ function  Dashboard (){
                                 <HourListComponent data={CO2predicted}></HourListComponent>
                         </View>
                     )}
-                    {COpredicted && (
+                    {COpredicted && COpredicted.length > 0 &&(
                         <View style={styles.box}>
                             <View style={[{flexDirection:'row', alignItems:'center'}]}>
                                 <FontAwesome name="hourglass-1" size={32} color={Colors.light.yellow}/>

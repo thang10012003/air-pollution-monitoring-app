@@ -4,6 +4,7 @@ const Location = require("../models/locationModel.js");
 const { addHistoryRecord } = require("../models/historyModel.js");
 
 
+
 const calculateEvaluate = (dataset) => {
     // Lấy các giá trị cần kiểm tra từ dataset
     const airQuality = dataset.find((data) => data.dataType === "AIR_QUALITY");
@@ -21,6 +22,7 @@ const calculateEvaluate = (dataset) => {
     }
     return "Good";
 };
+
 
 const createOrUpdatePacketData = async (location, dataset) => {
     let packetData = await PacketData.findOne({ location });
@@ -44,7 +46,7 @@ const createOrUpdatePacketData = async (location, dataset) => {
                 });
             }
         }
-        packetData.evaluate = calculateEvaluate(packetData.dataset);
+        packetData.evaluate = newSensor.evaluate;
     } else {
         packetData = new PacketData({
             location,
@@ -53,7 +55,7 @@ const createOrUpdatePacketData = async (location, dataset) => {
                 dataValue: sensor.dataValue,
                 timestamp: new Date(),
             })),
-            evaluate: calculateEvaluate(dataset),
+            evaluate: "Good",
         });
     }
 
