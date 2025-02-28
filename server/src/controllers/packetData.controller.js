@@ -132,6 +132,31 @@ const getNearestPacketData = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+const getPacketDataByLocationId = async (req, res) => {
+    try {
+        const { locationId } = req.params;
+
+        // Gọi service để lấy dữ liệu
+        const packet = await packetDataService.getPacketDataByIdLocation(locationId);
+
+        // Nếu không tìm thấy dữ liệu, trả về 404
+        if (!packet) {
+            return res.status(404).json({
+                message: `No packet data found for location ID: ${locationId}`
+            });
+        }
+
+        // Trả về dữ liệu thành công
+        res.status(200).json({
+            message: "Packet data retrieved successfully",
+            data: packet
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
-    createOrUpdatePacketData, getAllPacketData, deleteDataset, getNearestPacketData
+    createOrUpdatePacketData, getAllPacketData, deleteDataset, getNearestPacketData, getPacketDataByLocationId
 };

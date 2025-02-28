@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Dimensions, StyleSheet, Text, View } from "react-native";
+import { Alert, Button, Dimensions, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker, Region } from 'react-native-maps';
 import axiosClient from "../../../apis/axiosClient";
 import { LocationType } from "../../../models/LocationModel";
@@ -14,7 +14,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { addLocation, locationSelector } from "../../../redux/reducers/locationReducer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from 'expo-location';
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../../navigation/BottomTabNavigator/MapNavigator";
 
+type DashboardNavigationProp = NativeStackNavigationProp<RootStackParamList, "DataPosDetailScreen">;
 const  Map = () =>{
     const [locations, setlocations] = useState<LocationType []>([]);
     const [currentPos, setcurrentPos] = useState('')
@@ -22,6 +26,8 @@ const  Map = () =>{
     const [isloading, setisloading] = useState(true);
     const dispatch = useDispatch();
     const locationselector = useSelector(locationSelector)
+    const navigation = useNavigation<DashboardNavigationProp>();
+    
     const fetchLocations = async() => {
         try {
             const api = '/api/location'
@@ -42,6 +48,9 @@ const  Map = () =>{
         longitude: 	106.6967669,
         latitudeDelta: 0.015,
         longitudeDelta: 0.015,
+    }
+    const handleDetailPosData = (id:string, name:string) =>{
+        navigation.navigate("DataPosDetailScreen",{id, name})
     }
     // Dùng useEffect để log khi locations thay đổi
     // useEffect(() => {
@@ -119,6 +128,7 @@ const  Map = () =>{
                             }}
                             title={location.name}
                             description="Description"
+                            onPress={() => handleDetailPosData(location.id,location.name)}
                         />
 
                     ))}

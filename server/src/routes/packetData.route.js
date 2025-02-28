@@ -6,6 +6,7 @@ router.post('/', packetDataController.createOrUpdatePacketData);
 router.get('/', packetDataController.getAllPacketData);
 router.delete("/", packetDataController.deleteDataset);
 router.get("/nearest-packet/:latitude&:longitude", packetDataController.getNearestPacketData);
+router.get("/:locationId", packetDataController.getPacketDataByLocationId);
 
 module.exports = router;
     

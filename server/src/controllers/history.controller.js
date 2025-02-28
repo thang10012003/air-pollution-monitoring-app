@@ -70,6 +70,7 @@ async function getHistory(req, res) {
 
         // Chuyển đổi dữ liệu thành mảng có shape (1, 20, 5)
         const inputArray = latestData.map(item => [item.co2, item.co, item.dust, item.temperature, item.humidity]);
+        console.log(inputArray)
         const inputTensor = new ort.Tensor("float32", new Float32Array(inputArray.flat()), [1, 20, 5]);
 
         // 📌 Chạy dự đoán chỉ một lần
