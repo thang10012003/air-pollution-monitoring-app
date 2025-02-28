@@ -10,15 +10,15 @@ const calculateEvaluate = (dataset) => {
     const airQuality = dataset.find((data) => data.dataType === "AIR_QUALITY");
     const coLevel = dataset.find((data) => data.dataType === "CO");
     const dust = dataset.find((data)=> data.dataType==="DUST");
-    // Đưa ra đánh giá dựa trên các điều kiện
-    if (airQuality && parseFloat(airQuality.dataValue) >= 40 || parseFloat(coLevel.dataValue) >= 40 || parseFloat(dust.dataValue) >= 50) {
-        return "Moderate";
+    // Đưa ra đánh giá dựa trên các điều kiện 
+    if ( parseFloat(airQuality.dataValue) >= 60 || parseFloat(coLevel.dataValue) >= 60 || parseFloat(dust.dataValue) >= 100) {
+        return   "Hazardous";
     }
-    else if(airQuality && parseFloat(airQuality.dataValue) >= 50 || parseFloat(coLevel.dataValue) >= 50 || parseFloat(dust.dataValue) >= 70){
+    else if( parseFloat(airQuality.dataValue) >= 50 || parseFloat(coLevel.dataValue) >= 50 || parseFloat(dust.dataValue) >= 70){
         return "Unhealthy";
     }
-    else if(airQuality && parseFloat(airQuality.dataValue) >= 60 || parseFloat(coLevel.dataValue) >= 60 || parseFloat(dust.dataValue) >= 100){
-        return "Hazardous";
+    else if( parseFloat(airQuality.dataValue) >= 40 || parseFloat(coLevel.dataValue) >= 40 || parseFloat(dust.dataValue) >= 50){
+        return "Moderate";
     }
     return "Good";
 };
@@ -44,9 +44,10 @@ const createOrUpdatePacketData = async (location, dataset) => {
                     dataValue: newSensor.dataValue,
                     timestamp: new Date(),
                 });
+                packetData.evaluate.push(newSensor.evaluate);
             }
         }
-        packetData.evaluate = newSensor.evaluate;
+        packetData.evaluate = calculateEvaluate(packetData.dataset);
     } else {
         packetData = new PacketData({
             location,
@@ -198,6 +199,36 @@ const getAllPacketData = async () => {
     return await PacketData.find();
 }
 
+const getPacketDataByIdLocation = async (locationId) => {
+    const packets = await PacketData.find({});
+    if (packets.length === 0) {
+        throw new Error("No PacketData found in the database.");
+    }
+
+    for (const packet of packets) {
+        let location = packet.location.toString();
+        if (location === locationId) {
+            return {
+                id: packet.id,
+                location: packet.location,
+                latitude: packet.latitude,   // Lấy latitude từ packet
+                longitude: packet.longitude, // Lấy longitude từ packet
+                humidity: packet.dataset[3]?.dataValue,
+                temperature: packet.dataset[2]?.dataValue,
+                CO: packet.dataset[1]?.dataValue,
+                airQuality: packet.dataset[0]?.dataValue,
+                rain: packet.dataset[5]?.dataValue,
+                dust: packet.dataset[4]?.dataValue,
+                evaluate: packet.evaluate,
+                time: packet.dataset[3]?.timestamp,
+            };
+        }
+    }
+
+    throw new Error("No PacketData found by this location id: " + locationId);
+};
+
+
 /**
  * Tính khoảng cách giữa hai vị trí (latitude, longitude) sử dụng công thức Haversine
  * @param {Object} loc1 - Vị trí thứ nhất { latitude, longitude }
@@ -279,5 +310,5 @@ const findNearestPacketData = async (longitude, latitude) => {
 };
 
 module.exports = {
-    createOrUpdatePacketData, deleteDatasetByType, getAllPacketData, findNearestPacketData
+    createOrUpdatePacketData, deleteDatasetByType, getAllPacketData, findNearestPacketData, getPacketDataByIdLocation
 };
