@@ -28,7 +28,8 @@ const SettingComponent = (props: Props) => {
         text,
         iconFlex,
         textColor,
-        textSize
+        textSize,
+        onPress
         } = props;
     return (
         <TouchableOpacity 
@@ -39,7 +40,7 @@ const SettingComponent = (props: Props) => {
                 },
                 styles.container
             ]} 
-            // onPress={}
+            onPress={onPress}
         >
             <Row full direction='row' start>
                 {icon && iconFlex === 'left' && icon}

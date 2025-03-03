@@ -13,13 +13,21 @@ import SettingComponent from "./Components/SettingComponent"
 import { SpaceComponent } from "../../../components"
 import { Validate } from "../../../utils/validation"
 import TextDefault from "../../../components/TextDefault"
+import { useNavigation } from "@react-navigation/native"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { RootStackParamList } from "../../../navigation/BottomTabNavigator/SettingNavigator"
 
+type DashboardNavigationProp = NativeStackNavigationProp<RootStackParamList, "ThresholdScreen">;
 const  Setting = () =>{
     const url='https://vnn-imgs-a1.vgcloud.vn/image1.ictnews.vn/_Files/2020/03/17/trend-avatar-1.jpg'
     const dispatch = useDispatch();
     const selector = useSelector(authSelector);
     const locationselector = useSelector(locationSelector);
     const [username, setusername] = useState(Validate.extractNameFromEmail(selector.email))
+    const navigation = useNavigation<DashboardNavigationProp>();
+    const handleThreshold = (id: string) =>{
+        navigation.navigate("ThresholdScreen",{id})
+    }
     return(
         <View style = {styles.container}>
             <View style={styles.header}>
@@ -68,6 +76,7 @@ const  Setting = () =>{
                         height={60}
                         textSize={20}
                         iconFlex="left"
+                        onPress={()=> handleThreshold("")}
                         icon={<MaterialIcons name="data-thresholding" size={24} color="blue" />}
                     />
                 </View>
